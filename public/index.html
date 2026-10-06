@@ -1,0 +1,1234 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>오늘의 언론기사 종합</title>
+<meta name="theme-color" content="#1740b8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="언론기사">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%B0%3C/text%3E%3C/svg%3E">
+<style>
+
+
+
+:root{
+  --bg:#e9edf5; --panel:#ffffff; --ink:#111827; --sub:#3d4863; --line:#b9c3d6; --line-soft:#d5dce9;
+  --brand:#1740b8; --brand-ink:#12328f; --brand-soft:#dfe8ff; --accent:#b93a12; --chip:#eaf0ff; --chip-h:#cfdcff;
+  --hot:#eef3ff; --shadow:0 1px 2px rgba(15,25,55,.10),0 4px 14px rgba(15,25,55,.08);
+  --c0:#1f4fd8; --c1:#d9480f; --c2:#0b8a6a; --c3:#a86b00; --c4:#7b35d6; --c5:#546074;
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#0a0f1d; --panel:#141b2d; --ink:#f3f6fc; --sub:#bcc6db; --line:#3c4a6b; --line-soft:#2a3550;
+  --brand:#9bb8ff; --brand-ink:#c7d8ff; --brand-soft:#1e2e5c; --accent:#ff9a72; --chip:#1f2c4d; --chip-h:#2c4076;
+  --hot:#182446; --shadow:0 0 0 rgba(0,0,0,0);
+  --c0:#8fb1ff; --c1:#ff9466; --c2:#4fd6b3; --c3:#f4c452; --c4:#c7a9ff; --c5:#b4bdd0;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a0f1d; --panel:#141b2d; --ink:#f3f6fc; --sub:#bcc6db; --line:#3c4a6b; --line-soft:#2a3550;
+    --brand:#9bb8ff; --brand-ink:#c7d8ff; --brand-soft:#1e2e5c; --accent:#ff9a72; --chip:#1f2c4d; --chip-h:#2c4076;
+    --hot:#182446; --shadow:0 0 0 rgba(0,0,0,0);
+    --c0:#8fb1ff; --c1:#ff9466; --c2:#4fd6b3; --c3:#f4c452; --c4:#c7a9ff; --c5:#b4bdd0;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;line-height:1.55}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px 64px}
+
+/* 시작 화면 */
+#intro{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.drop{width:min(640px,100%);text-align:center;padding:56px 28px;border:2px dashed var(--line);border-radius:22px;background:var(--panel);box-shadow:var(--shadow);cursor:pointer;transition:.15s}
+.drop:hover,.dragging .drop{border-color:var(--brand);background:var(--brand-soft)}
+.drop .ico{font-size:48px}
+.drop h1{margin:12px 0 6px;font-size:26px}
+.drop p{margin:4px 0;color:var(--sub)}
+.drop small{display:block;margin-top:18px;color:var(--sub)}
+#err{color:var(--accent);margin-top:14px;font-weight:600;white-space:pre-line}
+
+/* 헤더 */
+header.top{padding:34px 0 18px;display:flex;gap:16px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+header.top h1{margin:0;font-size:30px;letter-spacing:-.02em}
+header.top .date{color:var(--brand);font-weight:700;margin-bottom:4px}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:9px 16px;border-radius:10px;font:inherit;cursor:pointer}
+.btn:hover{border-color:var(--brand);color:var(--brand)}
+
+/* 통계 */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.tile{background:var(--panel);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.tile b{display:block;font-size:32px;line-height:1.1;letter-spacing:-.02em}
+.tile span{color:var(--sub);font-size:13px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px 20px;margin-top:14px}
+.panel h2{margin:0 0 12px;font-size:15px;color:var(--sub);font-weight:700}
+.bars{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 28px}
+.bar{display:grid;grid-template-columns:96px 1fr 28px;align-items:center;gap:8px;font-size:13px;cursor:pointer;border-radius:8px;padding:2px 4px;border:0;background:none;color:inherit;font-family:inherit;text-align:left}
+.bar:hover,.bar.on{background:var(--brand-soft)}
+.bar i{display:block;height:9px;border-radius:5px;background:var(--brand);opacity:.85}
+.bar em{font-style:normal;color:var(--sub);text-align:right}
+.bar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.tiles{grid-template-columns:repeat(5,1fr)}
+.tile.warnT b{color:var(--accent)}
+.panel h2 small{font-weight:400;margin-left:6px}
+.top5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.hot{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--bg);text-decoration:none;transition:.12s}
+.hot:hover{border-color:var(--brand);transform:translateY(-1px)}
+.hot .rk{font-size:12px;font-weight:800;color:var(--accent)}
+.hot .hd{font-weight:700;font-size:14px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.hot .mt{margin-top:auto;font-size:12px;color:var(--sub)}
+.hot .mt b{color:var(--brand);font-size:15px}
+.row2{display:grid;grid-template-columns:1.5fr 1fr;gap:14px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--sub);margin-bottom:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.orow{display:grid;grid-template-columns:92px 1fr 26px;align-items:center;gap:8px;font-size:13px;cursor:pointer;border-radius:8px;padding:3px 4px;border:0;background:none;color:inherit;font-family:inherit;text-align:left;width:100%}
+.orow:hover,.orow.on{background:var(--brand-soft)}
+.orow span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.orow em{font-style:normal;color:var(--sub);text-align:right}
+.stack{display:flex;height:11px;border-radius:5px;overflow:hidden}
+.stack i{display:block;height:100%}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.rchip{border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer}
+.rchip b{margin-left:5px;color:var(--brand)}
+.rchip:hover{border-color:var(--brand)}
+.rchip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.rchip.on b{color:#fff}
+.acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;width:100%}
+.acts .btn{padding:6px 12px;font-size:13px}
+.acts .btn[disabled]{opacity:.4;cursor:default}
+.acts .btn.pri{background:var(--brand);color:#fff;border-color:var(--brand)}
+.sel{flex:none;width:18px;height:18px;margin:5px 0 0 auto;accent-color:var(--brand);cursor:pointer}
+.card.picked{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-soft)}
+#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;z-index:30}
+#toast.on{opacity:.95}
+
+
+/* 컨트롤 */
+.controls{position:sticky;top:0;z-index:5;background:var(--bg);padding:14px 0 10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tab{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:6px 14px;font:inherit;font-size:14px;cursor:pointer}
+.tab.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.tab small{opacity:.75;margin-left:4px}
+#q{flex:1;min-width:200px;padding:9px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit}
+#q:focus{outline:2px solid var(--brand);outline-offset:-1px}
+#filterTag{display:none;background:var(--brand-soft);color:var(--brand);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer;border:0}
+
+/* 기사 카드 */
+.sec-title{margin:28px 0 4px;font-size:20px;display:flex;align-items:center;gap:8px}
+.sec-title::before{content:"";width:6px;height:20px;border-radius:3px;background:var(--brand)}
+.grp-title{margin:18px 0 8px;font-size:15px;color:var(--sub);font-weight:700}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px}
+.card.wide{grid-column:1/-1}
+.card .head{display:flex;gap:10px;align-items:flex-start}
+.no{flex:none;min-width:28px;height:28px;border-radius:8px;background:var(--brand-soft);color:var(--brand);font-weight:800;font-size:13px;display:grid;place-items:center}
+.card h3{margin:0;font-size:17px;line-height:1.45;letter-spacing:-.01em}
+.hl-title{text-decoration:none}
+.hl-title:hover{color:var(--brand);text-decoration:underline}
+.tag{display:inline-block;background:var(--accent);color:#fff;border-radius:6px;padding:0 7px;font-size:12px;font-weight:700;margin-right:6px;vertical-align:1px}
+.pts{margin:0;padding-left:20px;color:var(--sub);font-size:14px}
+.pts li{margin:2px 0}
+.links{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:6px}
+.links a{text-decoration:none;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:3px 11px;font-size:13px;transition:.12s}
+.links a::after{content:" ↗";opacity:.5;font-size:11px}
+.links a:hover{background:var(--chip-h);border-color:var(--brand);color:var(--brand)}
+.links a.hl{background:var(--brand);color:#fff;border-color:var(--brand)}
+.note{font-size:12px;color:var(--sub);align-self:center}
+.empty{padding:40px;text-align:center;color:var(--sub)}
+footer{margin-top:36px;color:var(--sub);font-size:12px;text-align:center}
+.alert{display:none;background:#fdecea;color:#8a1f11;border:1px solid #f3b7ae;border-radius:12px;padding:12px 16px;margin:0 0 14px;white-space:pre-line;font-size:14px;line-height:1.6}
+.alert b{font-weight:800}
+@media (prefers-color-scheme:dark){.alert{background:#3a1d1a;color:#ffb4a8;border-color:#6b2f28}}
+#err{background:#fdecea;color:#8a1f11;border:1px solid #f3b7ae;border-radius:12px;padding:12px 16px;text-align:left;display:none;font-weight:500 !important;line-height:1.6}
+@media (prefers-color-scheme:dark){#err{background:#3a1d1a;color:#ffb4a8;border-color:#6b2f28}}
+.warn{background:var(--brand-soft);color:var(--ink);border-radius:10px;padding:8px 12px;font-size:13px;margin-top:12px}
+#dash{display:none}
+#overlay{display:none;position:fixed;inset:0;background:rgba(36,80,214,.18);border:4px dashed var(--brand);z-index:20;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:var(--brand);pointer-events:none}
+.dragging #overlay{display:flex}
+@media (max-width:1000px){.top5{grid-template-columns:repeat(2,1fr)}.row2{grid-template-columns:1fr}.tiles{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:820px){
+  .tiles{grid-template-columns:repeat(2,1fr)}
+  .top5,.cards{grid-template-columns:1fr}
+  header.top h1{font-size:24px}
+}
+
+/* ── v3.5 시인성 보정 ── */
+body{font-size:15.5px}
+.panel,.tile,.card{border:1px solid var(--line)}
+.panel h2{color:var(--ink);font-size:16px}
+.panel h2 small{color:var(--sub);font-size:13px}
+.tile span{color:var(--sub);font-size:14px;font-weight:600}
+.tile b{color:var(--ink)}
+.tile.warnT b{color:var(--accent)}
+.sec-title{font-size:22px;margin-top:32px}
+.sec-title::before{width:7px;height:24px;background:var(--brand)}
+.grp-title{color:var(--ink);font-size:16px;font-weight:800;background:var(--brand-soft);display:inline-block;padding:4px 12px;border-radius:8px;margin:20px 0 10px}
+.card{gap:9px}
+.card h3{font-size:17.5px;font-weight:800;color:var(--ink)}
+.hl-title{color:var(--ink)}
+.hl-title:hover{color:var(--brand);text-decoration:underline;text-underline-offset:3px}
+.no{background:var(--brand);color:#fff}
+.tag{background:var(--accent);color:#fff}
+.pts{color:var(--ink);font-size:15px;opacity:.9}
+.pts li::marker{color:var(--brand)}
+.links a{background:var(--chip);color:var(--brand-ink);border:1px solid var(--brand);font-size:13.5px;font-weight:600;padding:3px 12px}
+.links a::after{opacity:.75}
+.links a:hover{background:var(--brand);color:#fff}
+.links a.hl{background:var(--brand);color:#fff}
+:root[data-theme="dark"] .links a:hover,:root[data-theme="dark"] .links a.hl,:root[data-theme="dark"] .no,:root[data-theme="dark"] .tab.on,:root[data-theme="dark"] .rchip.on,:root[data-theme="dark"] .acts .btn.pri{color:#0a0f1d}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .links a:hover,:root:not([data-theme="light"]) .links a.hl,:root:not([data-theme="light"]) .no,:root:not([data-theme="light"]) .tab.on,:root:not([data-theme="light"]) .rchip.on,:root:not([data-theme="light"]) .acts .btn.pri{color:#0a0f1d}}
+.note{color:var(--sub);font-size:13px}
+.hot{background:var(--hot);border:1px solid var(--brand)}
+.hot .rk{color:var(--accent);font-size:13px}
+.hot .hd{color:var(--ink)}
+.hot .mt{color:var(--sub);font-size:13px}
+.hot .mt b{color:var(--brand)}
+.legend{color:var(--ink);font-size:13px}
+.legend i{width:12px;height:12px}
+.stack{height:14px;background:var(--line-soft)}
+.stack i + i{border-left:2px solid var(--panel)}
+.orow{font-size:14px}
+.orow em{color:var(--ink);font-weight:700}
+.orow:hover,.orow.on{background:var(--brand-soft);outline:1px solid var(--brand)}
+.rchip{border:1px solid var(--line);background:var(--chip);color:var(--ink);font-size:14px;font-weight:600}
+.rchip b{color:var(--brand)}
+.rchip.on{background:var(--brand);color:#fff}
+.tab{border:1px solid var(--line);color:var(--ink);font-weight:600}
+.tab.on{background:var(--brand);color:#fff}
+.btn{border:1px solid var(--line);color:var(--ink);font-weight:600}
+.btn:hover{border-color:var(--brand);color:var(--brand)}
+.acts .btn.pri{background:var(--brand);color:#fff;border-color:var(--brand)}
+#q{border:1px solid var(--line);color:var(--ink)}
+#q::placeholder{color:var(--sub)}
+#filterTag{background:var(--brand);color:#fff;font-weight:700}
+:root[data-theme="dark"] #filterTag{color:#0a0f1d}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #filterTag{color:#0a0f1d}}
+header.top .date{color:var(--brand);font-size:16px}
+.drop{border:2px dashed var(--brand);background:var(--panel)}
+.drop p,.drop small{color:var(--sub)}
+.controls{background:var(--bg)}
+.card.picked{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.warn{background:var(--brand-soft);color:var(--ink);border:1px solid var(--brand)}
+.alert{background:#ffe9e5;color:#7a1608;border:1px solid #e0796a}
+#err{background:#ffe9e5;color:#7a1608;border:1px solid #e0796a}
+:root[data-theme="dark"] .alert,:root[data-theme="dark"] #err{background:#3d1c18;color:#ffc4b8;border-color:#a3473a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .alert,:root:not([data-theme="light"]) #err{background:#3d1c18;color:#ffc4b8;border-color:#a3473a}}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+footer{color:var(--sub)}
+
+.print-only{display:none}
+.cal{position:absolute;z-index:50;width:292px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(10,20,50,.28);padding:12px;user-select:none}
+.cal-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cal-h b{font-size:16px}
+.cal-h button{border:1px solid var(--line);background:var(--panel);color:var(--ink);width:34px;height:30px;border-radius:8px;font-size:15px;cursor:pointer}
+.cal-h button:hover:not([disabled]){border-color:var(--brand);color:var(--brand)}
+.cal-h button[disabled]{opacity:.3;cursor:default}
+.cal-g{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center}
+.cal-w{font-size:12px;color:var(--sub);font-weight:700;padding:2px 0}
+.cal-w:first-child,.cal-d.sun{color:#c2361d}
+.cal-d{height:34px;border:0;border-radius:8px;background:none;color:var(--ink);font:inherit;font-size:14px}
+.cal-d.off{color:var(--sub);opacity:.38;cursor:default}
+.cal-d.has{background:var(--brand-soft);font-weight:800;cursor:pointer;color:var(--brand-ink)}
+.cal-d.has:hover{outline:2px solid var(--brand)}
+.cal-d.sel{background:var(--brand);color:#fff}
+.cal-d.nil{visibility:hidden}
+.cal-f{margin-top:8px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--sub)}
+.cal-f i{display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--brand-soft);border:1px solid var(--brand);margin-right:4px;vertical-align:-1px}
+.cal-f button{border:0;background:none;color:var(--brand);font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.cal-load{padding:40px 0;text-align:center;color:var(--sub);font-size:13px;grid-column:1/-1}
+:root[data-theme="dark"] .cal-d.sel{color:#0a0f1d}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cal-d.sel{color:#0a0f1d}}
+.cne{width:min(640px,100%);margin:18px auto 0;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 20px;box-shadow:var(--shadow)}
+.cne h2{margin:0 0 4px;font-size:17px}
+.cne p.sub{margin:0 0 12px;color:var(--sub);font-size:13.5px}
+.cne .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.dateTxt{width:9.6em;text-align:center;cursor:pointer;font-weight:700}
+.cne input[type=date],.fetchbar input[type=date],.dateTxt{padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit}
+.cne .rec{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.cne .rec button{border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:4px 12px;font:inherit;font-size:13px;cursor:pointer;font-weight:600}
+.cne .rec button:hover{border-color:var(--brand);color:var(--brand)}
+.cne .stat{margin-top:10px;font-size:14px;color:var(--ink);min-height:1.4em;white-space:pre-line}
+.cne .stat.err{color:#b42318}
+.cne .off{color:var(--sub);font-size:13.5px}
+.fetchbar{display:none;align-items:center;gap:6px;flex-wrap:wrap}
+.fetchbar.on{display:flex}
+.fetchbar .btn{padding:7px 12px}
+.hdr-actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.cne{text-align:center}
+.cne .ico{font-size:46px;line-height:1.2}
+.cne h1{margin:6px 0 4px;font-size:26px}
+.cne .row,.cne .rec{justify-content:center}
+.cne .rec button.on{background:var(--brand);border-color:var(--brand);color:#fff}
+:root[data-theme="dark"] .cne .rec button.on{color:#0a0f1d}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cne .rec button.on{color:#0a0f1d}}
+#err{margin-top:10px}
+.newpost{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--brand-soft);border:1px solid var(--brand);border-radius:12px;padding:10px 14px;margin:0 0 14px;font-weight:700}
+.newpost[hidden]{display:none}
+.newpost .btn{padding:5px 12px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cne .stat.err{color:#ffb4a8}}
+:root[data-theme="dark"] .cne .stat.err{color:#ffb4a8}
+.miss{display:inline-block;border:1.5px dashed var(--accent);color:var(--accent);background:transparent;border-radius:999px;padding:2px 11px;font-size:13px;font-weight:700}
+.miss-tile{cursor:pointer}
+.miss-tile:hover{border-color:var(--accent)}
+.btn.pri{background:var(--brand);color:#fff;border-color:var(--brand)}
+:root[data-theme="dark"] .btn.pri{color:#0a0f1d}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.pri{color:#0a0f1d}}
+
+@page{size:A4;margin:13mm 12mm 14mm}
+
+/* ───────── 모바일(휴대폰) ───────── */
+@media (max-width:640px){
+  body{font-size:15px}
+  .wrap{padding:0 12px 56px}
+  header.top{padding:16px 0 10px;gap:10px;align-items:stretch;flex-direction:column}
+  header.top h1{font-size:23px}
+  .hdr-actions{align-items:stretch;width:100%;gap:8px}
+  .fetchbar{justify-content:space-between;flex-wrap:nowrap}
+  .fetchbar .dateTxt{flex:1;min-width:0;width:auto}
+  .fetchbar .btn{padding:8px 11px}
+  .hdr-actions>div:last-child{display:flex;gap:6px;flex-wrap:wrap}
+  .btn{padding:8px 12px;font-size:14px}
+  .tiles{grid-template-columns:repeat(2,1fr);gap:8px}
+  .tile{padding:12px 14px}
+  .tile b{font-size:26px}
+  .panel{padding:14px;border-radius:14px}
+  .top5{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;margin:0 -6px;padding:2px 6px 8px;-webkit-overflow-scrolling:touch}
+  .hot{flex:0 0 80%;scroll-snap-align:start}
+  .row2{grid-template-columns:1fr}
+  .orow{grid-template-columns:76px 1fr 24px}
+  .controls{position:static;padding:10px 0 6px}
+  .tabs{flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+  .tab{flex:none}
+  #q{min-width:0;flex:1 1 100%}
+  .acts{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+  .acts .btn{flex:none}
+  .cards{grid-template-columns:1fr}
+  .card{padding:14px}
+  .card h3{font-size:16.5px}
+  .sel{width:22px;height:22px}
+  .links a,.miss{padding:5px 12px;font-size:14px}
+  .sec-title{font-size:20px}
+  .cne{padding:16px 14px}
+  .cne .dateTxt{width:9em}
+  .cal{position:fixed!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%);width:min(340px,92vw);box-shadow:0 0 0 100vmax rgba(10,20,50,.45)}
+  .cal-d{height:40px}
+  .newpost{font-size:14px}
+}
+@media print{
+  .fetchbar,.cne,.newpost,.cal{display:none!important}
+  /* 인쇄는 항상 밝은 배경·검정 글씨 (다크 모드여도) */
+  :root,:root[data-theme="dark"],:root:not([data-theme="light"]){
+    --bg:#fff;--panel:#fff;--ink:#000;--sub:#333;--line:#999;--line-soft:#ccc;--brand:#12328f;--brand-ink:#12328f;--brand-soft:#eef2fb;
+    --accent:#a5300c;--chip:#fff;--chip-h:#fff;--hot:#fff;--shadow:none;
+    --c0:#1f4fd8;--c1:#d9480f;--c2:#0b8a6a;--c3:#a86b00;--c4:#7b35d6;--c5:#546074;color-scheme:light}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;box-shadow:none!important;text-shadow:none!important}
+  html,body{background:#fff!important;color:#000;font-size:10pt;line-height:1.45}
+  .wrap{max-width:none;padding:0}
+  .print-only{display:block}
+
+  /* 화면용 요소 숨김 */
+  .controls,.acts,.sel,#toast,#overlay,#intro,#alert,#warn,.row2,.btn,.tabs,#q,#filterTag,.legend,.bars,.chips{display:none!important}
+  header.top .btn,header.top>div:last-child{display:none!important}
+
+  /* 머리글 */
+  header.top{display:block;padding:0 0 3mm;margin:0;border-bottom:2pt solid #12328f}
+  header.top .date{font-size:10.5pt;color:#12328f;font-weight:700;margin:0}
+  header.top h1{font-size:20pt;margin:0;letter-spacing:-.02em}
+  #printMeta{font-size:9pt;color:#333;margin:2mm 0 3mm}
+
+  /* 요약 숫자: 한 줄 띠 */
+  .tiles{display:flex!important;gap:0;margin:0 0 4mm;border:.75pt solid #999;border-radius:0}
+  .tile{flex:1;border:0;border-right:.75pt solid #ccc;border-radius:0;padding:2mm 3mm;background:#fff;display:flex;align-items:baseline;gap:2mm}
+  .tile:last-child{border-right:0}
+  .tile b{font-size:14pt;display:inline}
+  .tile span{font-size:8.5pt;color:#333}
+
+  /* 핵심 기사 */
+  .panel{border:.75pt solid #999;border-radius:0;padding:3mm 4mm;margin:0 0 4mm;background:#fff;break-inside:avoid}
+  .panel h2{font-size:11pt;margin:0 0 2mm;color:#000}
+  .panel h2 small{display:none}
+  .top5{display:block}
+  .hot{display:flex;flex-direction:row;gap:3mm;align-items:baseline;border:0;border-bottom:.5pt dotted #aaa;border-radius:0;padding:1.2mm 0;background:#fff;text-decoration:none;color:#000}
+  .hot:last-child{border-bottom:0}
+  .hot .rk{flex:none;width:22mm;font-size:8.5pt;color:#a5300c;font-weight:800}
+  .hot .hd{display:block;-webkit-line-clamp:unset;overflow:visible;font-size:10pt;font-weight:700;flex:1}
+  .hot .mt{margin:0;flex:none;font-size:8.5pt;color:#333}
+  .hot .mt b{font-size:9.5pt;color:#12328f}
+
+  /* 기사 목록 */
+  .sec-title{font-size:13pt;margin:5mm 0 1mm;padding-bottom:1mm;border-bottom:1.25pt solid #000;break-after:avoid;color:#000}
+  .sec-title::before{display:none}
+  .grp-title{display:block;background:#eef2fb!important;color:#12328f;font-size:10.5pt;padding:1mm 2.5mm;margin:3.5mm 0 1.5mm;border-left:2.5pt solid #12328f;border-radius:0;break-after:avoid}
+  .cards{display:block;column-count:2;column-gap:8mm;column-rule:.5pt solid #ccc}
+  .card{display:block;break-inside:avoid;border:0;border-bottom:.5pt solid #bbb;border-radius:0;padding:1.6mm 0 1.8mm;background:#fff!important;margin:0}
+  .card.picked{border-color:#bbb}
+  .card .head{display:block}
+  .no{display:inline;background:none!important;color:#12328f!important;font-size:9pt;font-weight:800;min-width:0;width:auto;height:auto;margin-right:1.5mm}
+  .no::after{content:"."}
+  .card h3{display:inline;font-size:10pt;line-height:1.4;font-weight:800}
+  .hl-title{color:#000;text-decoration:none}
+  .tag{background:none!important;color:#a5300c!important;border:.75pt solid #a5300c;padding:0 1.5mm;font-size:8pt;border-radius:1mm}
+  .pts{margin:.8mm 0 0;padding-left:4.5mm;font-size:8.8pt;color:#222;opacity:1}
+  .pts li{margin:0}
+  .links{display:block;margin:1mm 0 0;padding:0;font-size:8.3pt;color:#12328f}
+  .links a{display:inline;border:0;background:none!important;color:#12328f!important;padding:0;font-size:8.3pt;font-weight:600;text-decoration:none}
+  .links a::after{content:" ·";opacity:1;color:#777;margin-right:.8mm}
+  .links a:last-of-type::after{content:""}
+  .links .note{font-size:8pt;color:#555;margin-left:1.5mm}
+  .links .miss{display:inline;border:0;color:#a5300c;font-size:8.3pt;font-weight:700;padding:0;margin-left:1.5mm}
+  .links .miss::before{content:"※ "}
+  footer{margin-top:5mm;padding-top:2mm;border-top:.5pt solid #999;font-size:8pt;color:#555;text-align:left}
+}
+
+</style>
+</head>
+<body>
+<section id="intro">
+  <div class="cne" id="cneBox">
+    <div class="ico">📰</div>
+    <h1>오늘의 언론기사 종합</h1>
+    <p class="sub" id="cneSub">충남에듀있슈 '주요 언론기사' 게시판에서 날짜별 기사를 불러옵니다.</p>
+    <div class="row" id="cneRow" hidden>
+      <input type="text" id="cneDate" class="dateTxt" readonly aria-label="불러올 날짜" title="클릭하면 달력이 열립니다">
+      <button class="btn pri" id="cneGo">불러오기</button>
+      <button class="btn" id="cneRefresh" title="게시판에 새 글이 올라왔는지 확인">⟳ 새로고침</button>
+    </div>
+    <div class="rec" id="cneRec"></div>
+    <div class="stat" id="cneStat"></div>
+    <div id="err"></div>
+  </div>
+</section>
+
+<main id="dash" class="wrap">
+  <header class="top">
+    <div>
+      <div class="date" id="date"></div>
+      <h1 id="title">오늘의 언론기사 종합</h1>
+    </div>
+    <div class="hdr-actions">
+      <div class="fetchbar" id="hdrFetch">
+        <button class="btn" id="hdrPrev" title="이전 게시글(더 오래된 날짜)">◀</button>
+        <input type="text" id="hdrDate" class="dateTxt" readonly aria-label="날짜" title="클릭하면 달력이 열립니다">
+        <button class="btn" id="hdrGo">불러오기</button>
+        <button class="btn" id="hdrNext" title="다음 게시글(더 최근 날짜)">▶</button>
+      </div>
+      <div>
+      <button class="btn" id="reset" title="날짜 선택 첫 화면으로">↺ 처음으로</button>
+      <button class="btn" id="theme" title="화면 밝기 전환">◐ 화면</button>
+      <button class="btn" id="printBtn">🖨 인쇄</button>
+      </div>
+    </div>
+  </header>
+  <div class="newpost" id="newPost" hidden><span id="newPostTxt"></span><button class="btn pri" id="newPostGo">지금 보기</button></div>
+
+  <div class="print-only" id="printMeta"></div>
+  <div class="alert" id="alert"></div>
+  <div class="tiles" id="tiles"></div>
+  <div class="panel"><h2>🔥 오늘의 핵심 기사 <small>― 가장 많은 언론사가 보도한 기사 Top 5</small></h2><div class="top5" id="top5"></div></div>
+  <div class="row2" style="margin-top:14px">
+    <div class="panel" style="margin-top:0"><h2>언론사별 보도 건수 <small>― 유형별 구성 · 클릭하면 해당 언론사만 보기</small></h2><div class="legend" id="legend"></div><div id="bars"></div></div>
+    <div class="panel" style="margin-top:0"><h2>지역별 학교·기관 소식 <small>― 클릭하면 해당 지역만 보기</small></h2><div class="chips" id="regions"></div></div>
+  </div>
+
+  <div class="controls">
+    <div class="tabs" id="tabs"></div>
+    <input id="q" type="search" placeholder="제목·언론사 검색">
+    <button id="filterTag"></button>
+    <div class="acts">
+      <button class="btn pri" id="copySel" disabled>선택 기사 복사</button>
+      <button class="btn" id="copyAll">현재 목록 복사</button>
+      <button class="btn" id="selAll">현재 목록 전체 선택</button>
+      <button class="btn" id="selNone">선택 해제</button>
+    </div>
+  </div>
+
+  <div id="list"></div>
+  <div id="warn"></div>
+  <footer id="foot"></footer>
+</main>
+
+<div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const PDFJS_WORKER = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+/* ───────── 공통: 문단(세그먼트 배열) → 구조화 데이터 ───────── */
+const squash = s => s.replace(/\s+/g, "");
+const safeUrl = u => /^https?:\/\//i.test(u) ? u : null;
+
+function buildItem(segs){
+  let full = "", firstLink = -1;
+  for (const s of segs){ if (s.url && firstLink < 0) firstLink = full.length; full += s.t; }
+  const m = full.match(/^\s*(\d+)\s*\.\s*/);
+  const no = m ? m[1] : "";
+  const off = m ? m[0].length : 0;
+
+  // 링크 사이에 별도 문구가 끼어 있으면(① … (매체) ② … (매체)) 각각을 하나의 항목 안에서 나눠 표시
+  const lk = segs.filter(x => x.url);
+  if (lk.length >= 2){
+    const clean = t => t.replace(/^[\s,)]+|[\s,(]+$/g, "");
+    const parts = []; let buf = "", first = true;
+    for (const x of segs){
+      if (x.url){ let lab = buf; if (first){ lab = lab.slice(off); first = false; } parts.push({ label: clean(lab), x }); buf = ""; }
+      else buf += x.t;
+    }
+    if (parts.slice(1).every(q => q.label.length > 3)){
+      let head = parts[0].label, tag2 = "";
+      const tm2 = head.match(/^\[([^\]]+)\]\s*/); if (tm2){ tag2 = tm2[1]; head = head.slice(tm2[0].length); }
+      const links2 = [], seen2 = new Set();
+      parts.forEach((q, qi) => { const u = safeUrl(q.x.url); if (!u || seen2.has(u)) return; seen2.add(u);
+        const c = ((qi ? q.label : head).match(/^[①-⑳]/) || [""])[0];
+        links2.push({ name: (c ? c + " " : "") + (q.x.t.replace(/^[\s,()]+|[\s,()]+$/g, "") || hostOf(u)), url: u }); });
+      return { no, tag: tag2, headline: parts.map((q, i) => i ? q.label : head).join("  /  "), points: [], links: links2, note: "", missing: [] };
+    }
+  }
+
+  let cut = -1;
+  if (firstLink >= 0) { cut = full.lastIndexOf("(", firstLink); if (cut < off) cut = firstLink; }
+  else { const mm = full.slice(off).match(/\s*\([^()]*\)\s*$/); if (mm) cut = off + mm.index; }
+  let title = (cut >= 0 ? full.slice(off, cut) : full.slice(off)).trim();
+
+  // 링크 & 링크 없는 언론사(미탑재 등) 메모
+  const links = [], seen = new Set();
+  let pos = 0, rest = "";
+  for (const s of segs){
+    const start = pos; pos += s.t.length;
+    if (s.url){
+      const url = safeUrl(s.url); const name = s.t.replace(/^[\s,()]+|[\s,()]+$/g, "");
+      if (url && !seen.has(url)){ seen.add(url); links.push({name: name || hostOf(url), url}); }
+    } else if (cut >= 0 && start >= cut){ rest += s.t; }
+  }
+  let note = rest.replace(/[(),]/g, " ").replace(/\s+/g, " ").trim();
+  const missing = [];                                     // "충청신문 인터넷 미탑재" → {name, text}
+  note = note.replace(/([^\s,()]+)\s*(인터넷\s*미탑재)/g, (m0, n) => { missing.push({ name: n, text: "인터넷 미탑재" }); return " "; }).replace(/\s+/g, " ").trim();
+
+  let tag = "";
+  const tm = title.match(/^\[([^\]]+)\]\s*/);
+  if (tm){ tag = tm[1]; title = title.slice(tm[0].length); }
+  const parts = [];
+  title.split(/\.{3}|…/).map(x => x.trim()).filter(Boolean).forEach(x => {
+    const prev = parts[parts.length - 1];
+    const open = t => (t.match(/[“‘]/g) || []).length > (t.match(/[”’]/g) || []).length;
+    if (prev !== undefined && open(prev)) parts[parts.length - 1] = prev + " " + x; else parts.push(x);
+  });
+  return { no, tag, headline: parts[0] || title, points: parts.slice(1), links, note, missing };
+}
+const hostOf = u => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return u; } };
+
+function parseParagraphs(paras){           // paras: [{segs:[{t,url}]}]
+  const data = { date: "", title: "", sections: [] };
+  let sec = null, grp = null;
+  const ensureSec = name => { sec = { name, groups: [] }; data.sections.push(sec); grp = null; };
+  const ensureGrp = name => { if (!sec) ensureSec("기사"); grp = { name, items: [] }; sec.groups.push(grp); };
+
+  for (const p of paras){
+    const text = p.segs.map(s => s.t).join("").replace(/\s+/g, " ").trim();
+    if (!text) continue;
+    const sq = squash(text);
+    if (/^-\d+-$/.test(sq)) continue;                       // 쪽번호
+    if (text.startsWith("▷")) break;                        // 안내문 이후(방송 전문 등)는 제외
+    const dm = text.match(/(\d{4})\s*년\s*(\d{1,2})\s*월\s*(\d{1,2})\s*일\s*(?:\(\s*(.)\s*\))?/);
+    if (dm && !data.date && !sec){ data.date = `${dm[1]}년 ${+dm[2]}월 ${+dm[3]}일` + (dm[4] ? ` (${dm[4]})` : ""); continue; }
+    if (!sec && !data.title && sq.length < 20 && !/^\d+\./.test(sq) && sq !== "방송보도" && !sq.startsWith("신문")){ data.title = text; continue; }
+    if (sq === "방송보도" || sq === "TV방송보도"){ ensureSec("방송보도"); continue; }
+    if (/^신문및?인터넷보도$/.test(sq)){ ensureSec("신문 및 인터넷보도"); continue; }
+    if (text.startsWith("▣")){ if (!sec) ensureSec("기사"); ensureGrp(text.replace(/^▣\s*/, "").trim()); continue; }
+    if (/^\d+\s*\.(?!\d)/.test(text)){
+      if (!sec) ensureSec("기사");
+      if (!grp) ensureGrp("");
+      grp.items.push(buildItem(p.segs));
+    }
+  }
+  data.sections = data.sections.filter(s => s.groups.some(g => g.items.length));
+  return data;
+}
+
+/* ───────── HWPX ───────── */
+async function parseHwpx(file){
+  const zip = await JSZip.loadAsync(await file.arrayBuffer());
+  const names = Object.keys(zip.files).filter(n => /^Contents\/section\d+\.xml$/i.test(n)).sort();
+  if (!names.length) throw new Error("HWPX 내용을 찾지 못했습니다.");
+  const paras = [];
+  for (const n of names){
+    const doc = new DOMParser().parseFromString(await zip.file(n).async("string"), "text/xml");
+    for (const p of doc.documentElement.children){
+      if (p.localName !== "p") continue;
+      const segs = [], stack = [];
+      const push = t => { if (!t) return; const url = stack.length ? stack[stack.length-1] : null;
+        const last = segs[segs.length-1]; if (last && last.url === url) last.t += t; else segs.push({t, url}); };
+      (function walk(node){
+        for (const c of node.childNodes){
+          if (c.nodeType === 3){ if (node.localName === "t") push(c.nodeValue); continue; }
+          if (c.nodeType !== 1) continue;
+          const ln = c.localName;
+          if (ln === "fieldBegin"){
+            let url = null;
+            if (c.getAttribute("type") === "HYPERLINK"){
+              for (const sp of c.getElementsByTagName("*")){
+                if (sp.localName === "stringParam" && sp.getAttribute("name") === "Path") url = sp.textContent.trim();
+              }
+            }
+            stack.push(url); continue;
+          }
+          if (ln === "fieldEnd"){ stack.pop(); continue; }
+          if (ln === "lineBreak" || ln === "tab"){ push(" "); continue; }
+          walk(c);
+        }
+      })(p);
+      paras.push({ segs });
+    }
+  }
+  return parseParagraphs(paras);
+}
+
+
+/* ───────── 구형 HWP (.hwp, OLE 복합문서) ───────── */
+function readCFB(u8){
+  const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
+  const sig = [0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1];
+  if (!sig.every((v, i) => u8[i] === v)) throw new Error("OLE 문서가 아닙니다");
+  const ss = 1 << dv.getUint16(0x1E, true), mss = 1 << dv.getUint16(0x20, true);
+  const nFat = dv.getUint32(0x2C, true), dirStart = dv.getUint32(0x30, true), cutoff = dv.getUint32(0x38, true);
+  const mfStart = dv.getUint32(0x3C, true), difStart = dv.getUint32(0x44, true), nDif = dv.getUint32(0x48, true);
+  const END = 0xFFFFFFFA, off = sec => (sec + 1) * ss;
+  const difat = [];
+  for (let i = 0; i < 109; i++) difat.push(dv.getUint32(0x4C + 4 * i, true));
+  for (let d = difStart, k = 0; d < END && k < nDif; k++){
+    const o = off(d);
+    for (let j = 0; j < ss / 4 - 1; j++) difat.push(dv.getUint32(o + 4 * j, true));
+    d = dv.getUint32(o + ss - 4, true);
+  }
+  const fat = [];
+  difat.filter(x => x < END).slice(0, nFat).forEach(sec => { const o = off(sec); for (let j = 0; j < ss / 4; j++) fat.push(dv.getUint32(o + 4 * j, true)); });
+  const chain = (start, table) => { const r = []; for (let c = start, g = 0; c < END && g < 1e6; g++){ r.push(c); c = table[c]; if (c === undefined) break; } return r; };
+  const readSectors = (start, size, base, secSize, table) => {
+    const list = chain(start, table), out = new Uint8Array(list.length * secSize);
+    list.forEach((sec, i) => out.set(base.subarray(off2(sec, secSize, base), off2(sec, secSize, base) + secSize), i * secSize));
+    return size == null ? out : out.subarray(0, size);
+  };
+  const off2 = (sec, secSize, base) => base === u8 ? (sec + 1) * secSize : sec * secSize;
+  const dir = readSectors(dirStart, null, u8, ss, fat);
+  const ddv = new DataView(dir.buffer, dir.byteOffset, dir.byteLength);
+  const ents = [];
+  for (let i = 0; i * 128 < dir.length; i++){
+    const o = i * 128, nl = ddv.getUint16(o + 0x40, true);
+    let name = ""; for (let k = 0; k < Math.max(0, nl / 2 - 1); k++) name += String.fromCharCode(ddv.getUint16(o + 2 * k, true));
+    ents.push({ name, type: dir[o + 0x42], left: ddv.getUint32(o + 0x44, true), right: ddv.getUint32(o + 0x48, true),
+                child: ddv.getUint32(o + 0x4C, true), start: ddv.getUint32(o + 0x74, true), size: ddv.getUint32(o + 0x78, true) });
+  }
+  const NONE = 0xFFFFFFFF;
+  let mini = null, miniFat = null;
+  const stream = e => {
+    if (e.size < cutoff && e.type !== 5){
+      if (!mini){
+        mini = readSectors(ents[0].start, ents[0].size, u8, ss, fat);
+        const mf = readSectors(mfStart, null, u8, ss, fat), mdv = new DataView(mf.buffer, mf.byteOffset, mf.byteLength);
+        miniFat = []; for (let i = 0; i < mf.length / 4; i++) miniFat.push(mdv.getUint32(i * 4, true));
+      }
+      const list = chain(e.start, miniFat), out = new Uint8Array(list.length * mss);
+      list.forEach((sec, i) => out.set(mini.subarray(sec * mss, sec * mss + mss), i * mss));
+      return out.subarray(0, e.size);
+    }
+    return readSectors(e.start, e.size, u8, ss, fat);
+  };
+  const findIn = (parent, name) => {
+    const st = [ents[parent].child];
+    while (st.length){
+      const i = st.pop(); if (i === NONE || i === undefined || !ents[i]) continue;
+      if (ents[i].name === name) return i;
+      st.push(ents[i].left, ents[i].right);
+    }
+    return -1;
+  };
+  return { get(path){ let cur = 0; for (const part of path.split("/")){ cur = findIn(cur, part); if (cur < 0) return null; } return stream(ents[cur]); } };
+}
+
+async function inflateRaw(bytes){
+  if (typeof DecompressionStream === "undefined") throw new Error("이 브라우저는 압축 해제를 지원하지 않습니다. 최신 Chrome/Edge를 사용해 주세요.");
+  const ds = new DecompressionStream("deflate-raw");
+  const w = ds.writable.getWriter(); w.write(bytes).catch(() => {}); w.close().catch(() => {});
+  const rd = ds.readable.getReader(), chunks = []; let total = 0;
+  try { for (;;){ const { done, value } = await rd.read(); if (done) break; chunks.push(value); total += value.length; } }
+  catch (e){ if (!total) throw e; }                     // HWP 스트림 끝의 여분 바이트는 무시
+  const out = new Uint8Array(total); let o = 0; chunks.forEach(c => { out.set(c, o); o += c.length; });
+  return out;
+}
+
+function hwpLinkUrl(b){                                 // %hlk 컨트롤 데이터에서 URL 꺼내기
+  const dec = (from, n) => { let t = ""; for (let i = 0; i < n && from + 2 * i + 1 < b.length; i++) t += String.fromCharCode(b[from + 2 * i] | (b[from + 2 * i + 1] << 8)); return t; };
+  let start = -1;
+  for (let i = 4; i + 8 <= b.length; i++){
+    if (b[i] === 0x68 && b[i+1] === 0 && b[i+2] === 0x74 && b[i+3] === 0 && b[i+4] === 0x74 && b[i+5] === 0 && b[i+6] === 0x70 && b[i+7] === 0){ start = i; break; }
+  }
+  if (start < 2) return null;
+  const len = b[start - 2] | (b[start - 1] << 8);
+  let t = dec(start, len > 0 && start + len * 2 <= b.length ? len : (b.length - start) / 2);
+  t = t.replace(/\0+$/, "").replace(/;\d+;\d+;\d+;?$/, "").replace(/\\(.)/g, "$1");
+  return t;
+}
+
+function hwpSections(data){                             // 레코드 순회 → 문단 목록
+  const dv = new DataView(data.buffer, data.byteOffset, data.byteLength);
+  const paras = [], byLevel = [];
+  let fnLevel = -1, curFn = null;
+  for (let i = 0; i + 4 <= data.length;){
+    const h = dv.getUint32(i, true); i += 4;
+    const tag = h & 0x3ff, lvl = (h >>> 10) & 0x3ff; let sz = h >>> 20;
+    if (sz === 0xfff){ sz = dv.getUint32(i, true); i += 4; }
+    const body = data.subarray(i, i + sz); i += sz;
+    if (fnLevel >= 0 && lvl <= fnLevel){ fnLevel = -1; curFn = null; }
+    if (tag === 71 && lvl > 0 && body.length >= 4 && body[0] === 0x20 && body[1] === 0x20 && body[2] === 0x6e && (body[3] === 0x66 || body[3] === 0x65)){
+      const parent = byLevel[lvl - 1];                     // 각주/미주 컨트롤
+      if (parent){ curFn = { paras: [] }; (parent.fn || (parent.fn = [])).push(curFn); fnLevel = lvl; }
+      continue;
+    }
+    if (tag === 66 && fnLevel >= 0 && curFn){ const q = { text: null, links: [] }; byLevel[lvl] = q; curFn.paras.push(q); continue; }
+    if (tag === 66){ const p = { text: null, links: [] }; byLevel[lvl] = p; paras.push(p); }
+    else if (tag === 67){ const p = byLevel[lvl - 1]; if (p) p.text = body; }
+    else if (tag === 71 && lvl > 0 && body.length > 4 && body[0] === 0x6b && body[1] === 0x6c && body[2] === 0x68 && body[3] === 0x25){
+      const p = byLevel[lvl - 1]; if (p) p.links.push(hwpLinkUrl(body));
+    }
+  }
+  return paras;
+}
+
+function hwpParaSegs(p){
+  const segs = [], stack = [], b = p.text; let li = 0, fi = 0;
+  if (!b) return segs;
+  const dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
+  const push = t => { const url = stack.length ? stack[stack.length - 1] : null; const last = segs[segs.length - 1];
+    if (last && last.url === url) last.t += t; else segs.push({ t, url }); };
+  let buf = "";
+  const flush = () => { if (buf){ push(buf); buf = ""; } };
+  for (let i = 0; i + 2 <= b.length;){
+    const c = dv.getUint16(i, true);
+    if (c >= 32){ buf += String.fromCharCode(c); i += 2; continue; }
+    flush();
+    if (c === 3){ const hl = b[i+2] === 0x6b && b[i+3] === 0x6c && b[i+4] === 0x68 && b[i+5] === 0x25; stack.push(hl ? (p.links[li++] || null) : null); i += 16; }
+    else if (c === 4){ stack.pop(); i += 16; }
+    else if (c === 17){                                   // 각주 표시 → 각주 본문을 그 자리에 삽입
+      const fn = p.fn && p.fn[fi++];
+      if (fn){ const t = fn.paras.map(q => hwpParaSegs(q).map(x => x.t).join("")).join(" ").replace(/\s+/g, " ").trim(); if (t) push(" " + t + " "); }
+      i += 16;
+    }
+    else if (c === 9){ push(" "); i += 16; }
+    else if (c === 10 || c === 30 || c === 31){ push(" "); i += 2; }
+    else if (c === 0 || c === 13 || (c >= 24 && c <= 29)){ i += 2; }
+    else { i += 16; }                                   // 그림·표·각주 등 확장 컨트롤
+  }
+  flush();
+  return segs;
+}
+
+async function parseHwp(file){
+  const cfb = readCFB(new Uint8Array(await file.arrayBuffer()));
+  const fh = cfb.get("FileHeader");
+  if (!fh || String.fromCharCode(...fh.subarray(0, 17)) !== "HWP Document File") throw new Error("한글(HWP) 문서가 아닙니다");
+  const flags = new DataView(fh.buffer, fh.byteOffset, fh.byteLength).getUint32(36, true);
+  if (flags & 0x2) throw new Error("암호가 걸린 문서입니다. 암호를 해제한 뒤 다시 저장해 주세요");
+  if (flags & 0x4) throw new Error("배포용 문서라 내용을 읽을 수 없습니다");
+  const paras = [];
+  for (let n = 0; n < 64; n++){
+    let d = cfb.get("BodyText/Section" + n); if (!d) break;
+    if (flags & 0x1) d = await inflateRaw(d);
+    hwpSections(d).forEach(p => paras.push({ segs: hwpParaSegs(p) }));
+  }
+  if (!paras.length) throw new Error("본문을 찾지 못했습니다");
+  return parseParagraphs(paras);
+}
+
+/* ───────── PDF ───────── */
+async function parsePdf(file){
+  if (!window.pdfjsLib) throw new Error("PDF 라이브러리를 불러오지 못했습니다(인터넷 연결 확인).");
+  if (!parsePdf.ready){
+    const src = await (await fetch(PDFJS_WORKER)).text();
+    pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([src], {type:"text/javascript"}));
+    parsePdf.ready = true;
+  }
+  const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+  const lines = [];                                           // {segs}
+  for (let pn = 1; pn <= pdf.numPages; pn++){
+    const page = await pdf.getPage(pn);
+    const tc = await page.getTextContent();
+    const links = (await page.getAnnotations()).filter(a => a.subtype === "Link" && a.url);
+    const items = tc.items.filter(i => i.str && i.str.trim()).map(i => {
+      const x = i.transform[4], y = i.transform[5], w = i.width, h = i.height || 10;
+      const cx = x + w/2, cy = y + h*0.3;
+      const a = links.find(l => cx >= l.rect[0] && cx <= l.rect[2] && cy >= l.rect[1] && cy <= l.rect[3]);
+      return { s: i.str, x, y, w, url: a ? a.url : null };
+    });
+    items.sort((a,b) => Math.abs(a.y-b.y) > 4 ? b.y - a.y : a.x - b.x);
+    const pageStart = lines.length;
+    let cur = null, lastY = null;
+    for (const it of items){
+      if (cur === null || Math.abs(it.y - lastY) > 4){ cur = { segs: [], endX: null }; lines.push(cur); lastY = it.y; }
+      const gap = cur.endX === null ? 0 : it.x - cur.endX;
+      const t = (gap > 1.2 ? " " : "") + it.s;
+      const last = cur.segs[cur.segs.length-1];
+      if (last && last.url === it.url) last.t += t; else cur.segs.push({ t, url: it.url });
+      cur.endX = it.x + it.w;
+    }
+    const pl = lines.splice(pageStart), fns = {}, body = [];
+    for (const l of pl){
+      const txt = l.segs.map(x => x.t).join("").trim(), m = txt.match(/^(\d{1,2})\)\s*(\S.*)$/);
+      if (m && !l.segs.some(x => x.url)) fns[m[1]] = m[2]; else body.push(l);
+    }
+    if (Object.keys(fns).length) body.forEach(l => l.segs.forEach(sg => { if (!sg.url)
+      sg.t = sg.t.replace(/([^\s\d])\s?(\d{1,2})\)/g, (all, a, n) => fns[n] ? a + " " + fns[n] + " " : all); }));
+    lines.push(...body);
+  }
+  // 줄 → 문단
+  const startsNew = l => {
+    const raw = l.segs.map(s => s.t).join("").trim();
+    const sq = squash(raw);
+    return /^\d+\.(?!\d)/.test(raw) || /^[▣▷]/.test(sq) || /^(TV)?방송보도$/.test(sq) || /^신문및?인터넷보도$/.test(sq) || /^\d{4}년\d/.test(sq) || /^오늘의주요기사/.test(sq) || /^-\d+-$/.test(sq);
+  };
+  const paras = [];
+  for (const l of lines){
+    if (startsNew(l) || !paras.length) paras.push({ segs: l.segs.map(s => ({...s})) });
+    else { const p = paras[paras.length-1]; p.segs.push({ t: " ", url: null }); p.segs.push(...l.segs.map(s => ({...s}))); }
+  }
+  return parseParagraphs(paras);
+}
+
+/* ───────── 화면 ───────── */
+const REGIONS = ["천안","공주","보령","아산","서산","논산","계룡","당진","금산","부여","서천","청양","홍성","예산","태안"];
+const regionOf = h => REGIONS.find(x => h.startsWith(x)) || "기타";
+let PRINT_ONLY = false, LAST_META = null;
+let DATA = null, SEL = new Set(), VISIBLE = [], state = { tab: "all", q: "", outlet: "", region: "", missing: false };
+
+function el(tag, cls, text){ const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+function flat(){ const r = []; DATA.sections.forEach(s => s.groups.forEach(g => g.items.forEach(it => r.push({ sec: s.name, grp: g.name, it })))); return r; }
+
+function show(data, meta){
+  DATA = data; state = { tab: "all", q: "", outlet: "", region: "", missing: false }; $("#q").value = "";
+  $("#intro").style.display = "none"; $("#dash").style.display = "block";
+  $("#date").textContent = data.date || "";
+  $("#title").textContent = "오늘의 언론기사 종합";
+  document.title = (data.date ? data.date + " " : "") + "오늘의 언론기사 종합";
+  const all = flat();
+  all.forEach((x, i) => { x.it.id = i; x.it.region = x.grp.includes("지역") ? regionOf(x.it.headline) : ""; });
+  SEL = new Set();
+
+  // B. 요약 숫자
+  const cnt = f => all.filter(f).length;
+  const tiles = $("#tiles"); tiles.replaceChildren();
+  [[all.length, "전체 기사", ""],
+   [cnt(x => x.sec === "방송보도"), "방송 보도", ""],
+   [cnt(x => x.grp.includes("종합")), "도교육청 주요 보도", ""],
+   [cnt(x => x.grp.includes("지역")), "지역 소식", ""],
+   [cnt(x => (x.it.missing || []).length), "인터넷 미탑재 (클릭)", "warnT miss-tile"]].forEach(([n, l, c]) => {
+    const t = el("div", "tile " + c); t.append(el("b", null, String(n)), el("span", null, l)); tiles.append(t);
+    if (c.includes("miss-tile")){ t.title = "인터넷에 올라오지 않은 매체가 있는 기사만 보기"; t.onclick = () => { state.missing = !state.missing; render(); }; }
+  });
+
+  // A. 핵심 기사 Top 5 (보도 매체 수 순)
+  const top = all.filter(x => x.it.links.length).map((x, i) => ({ x, i }))
+    .sort((a, b) => b.x.it.links.length - a.x.it.links.length || a.i - b.i).slice(0, 5);
+  const t5 = $("#top5"); t5.replaceChildren();
+  top.forEach(({ x }, k) => {
+    const a = el("a", "hot"); a.href = x.it.links[0].url; a.target = "_blank"; a.rel = "noopener noreferrer";
+    a.append(el("span", "rk", `TOP ${k + 1}` + (x.it.tag ? ` · ${x.it.tag}` : "")), el("span", "hd", x.it.headline));
+    const mt = el("span", "mt"); mt.append(el("b", null, String(x.it.links.length)), document.createTextNode("개 매체 보도")); a.append(mt);
+    t5.append(a);
+  });
+
+  // C. 언론사별 유형 누적 막대
+  const cats = [...new Set(all.map(x => x.grp || x.sec))];
+  const per = {};
+  all.forEach(x => x.it.links.forEach(l => { const k = x.grp || x.sec; const o = per[l.name] || (per[l.name] = { n: 0, by: {} }); o.n++; o.by[k] = (o.by[k] || 0) + 1; }));
+  DATA.outlets = Object.entries(per).sort((a, b) => b[1].n - a[1].n || a[0].localeCompare(b[0], "ko"));
+  const lg = $("#legend"); lg.replaceChildren();
+  cats.forEach((c, i) => { const sp = el("span"); const d = el("i"); d.style.background = `var(--c${Math.min(i, 5)})`; sp.append(d, document.createTextNode(c)); lg.append(sp); });
+  const bars = $("#bars"); bars.replaceChildren();
+  const max = DATA.outlets.length ? DATA.outlets[0][1].n : 1;
+  DATA.outlets.slice(0, 8).forEach(([name, o]) => {
+    const b = el("button", "orow"); b.type = "button"; b.dataset.name = name;
+    const st = el("div", "stack"); st.style.width = Math.max(8, o.n / max * 100) + "%";
+    cats.forEach((c, i) => { if (!o.by[c]) return; const seg = el("i"); seg.style.flex = o.by[c]; seg.style.background = `var(--c${Math.min(i, 5)})`; seg.title = `${c} ${o.by[c]}건`; st.append(seg); });
+    const track = el("div"); track.append(st);
+    b.append(el("span", null, name), track, el("em", null, String(o.n)));
+    b.onclick = () => { state.outlet = state.outlet === name ? "" : name; render(); };
+    bars.append(b);
+  });
+
+  // D. 지역 칩
+  const rc = {}; all.forEach(x => { if (x.it.region) rc[x.it.region] = (rc[x.it.region] || 0) + 1; });
+  const rg = $("#regions"); rg.replaceChildren();
+  Object.entries(rc).sort((a, b) => (a[0] === "기타") - (b[0] === "기타") || b[1] - a[1]).forEach(([name, n]) => {
+    const c = el("button", "rchip", name === "기타" ? "도 직속·기타" : name); c.type = "button"; c.dataset.name = name; c.append(el("b", null, String(n)));
+    c.onclick = () => { state.region = state.region === name ? "" : name; render(); };
+    rg.append(c);
+  });
+  if (!Object.keys(rc).length) rg.append(el("span", "note", "지역소식 구획이 없습니다."));
+
+  const warn = $("#warn"); warn.replaceChildren();
+  LAST_META = meta;
+  $("#foot").textContent = "버그신고 041-640-6512 김 석 주무관  |  기사문의 041-640-6514 강상현 주무관";
+  render();
+}
+
+function render(){
+  // 탭
+  const all = flat();
+  const tabs = $("#tabs"); tabs.replaceChildren();
+  const names = [...new Set(all.map(x => x.grp || x.sec))];
+  const mk = (key, label, n) => { const b = el("button", "tab" + (state.tab === key ? " on" : ""), label); b.type = "button";
+    const s = el("small", null, String(n)); b.append(s); b.onclick = () => { state.tab = key; render(); }; tabs.append(b); };
+  mk("all", "전체", all.length);
+  names.forEach(n => mk(n, n, all.filter(x => (x.grp || x.sec) === n).length));
+
+  // 언론사 필터 표시
+  document.querySelectorAll(".orow").forEach(b => b.classList.toggle("on", b.dataset.name === state.outlet));
+  document.querySelectorAll(".rchip").forEach(b => b.classList.toggle("on", b.dataset.name === state.region));
+  const ft = $("#filterTag");
+  const fl = [state.missing && "인터넷 미탑재 기사", state.outlet && `언론사: ${state.outlet}`, state.region && `지역: ${state.region === "기타" ? "도 직속·기타" : state.region}`].filter(Boolean);
+  ft.style.display = fl.length ? "inline-block" : "none";
+  ft.textContent = fl.length ? fl.join(" · ") + "  ✕" : "";
+  ft.onclick = () => { state.outlet = ""; state.region = ""; render(); };
+
+  const q = state.q.trim().toLowerCase();
+  const match = ({it, sec, grp}) => {
+    if (state.tab !== "all" && (grp || sec) !== state.tab) return false;
+    if (state.outlet && !it.links.some(l => l.name === state.outlet)) return false;
+    if (state.region && it.region !== state.region) return false;
+    if (state.missing && !(it.missing || []).length) return false;
+    if (PRINT_ONLY && !SEL.has(it.id)) return false;
+    if (q){
+      const hay = [it.tag, it.headline, ...it.points, it.note, ...(it.missing || []).map(m => m.name + " " + m.text), ...it.links.map(l => l.name)].join(" ").toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  };
+
+  const list = $("#list"); list.replaceChildren();
+  let shown = 0; VISIBLE = [];
+  for (const s of DATA.sections){
+    const block = el("div");
+    let secHas = false;
+    for (const g of s.groups){
+      const items = g.items.filter(it => match({it, sec: s.name, grp: g.name}));
+      if (!items.length) continue;
+      if (!secHas){ block.append(el("h2", "sec-title", s.name)); secHas = true; }
+      if (g.name) block.append(el("div", "grp-title", `▣ ${g.name}  (${items.length})`));
+      const cards = el("div", "cards");
+      items.forEach(it => {
+        shown++; VISIBLE.push({ sec: s.name, grp: g.name, it });
+        const c = el("article", "card" + (SEL.has(it.id) ? " picked" : ""));
+        const head = el("div", "head");
+        head.append(el("span", "no", it.no || "•"));
+        const h = el("h3");
+        if (it.tag) h.append(el("span", "tag", it.tag));
+        if (it.links.length){ const ha = el("a", "hl-title", it.headline); ha.href = it.links[0].url; ha.target = "_blank"; ha.rel = "noopener noreferrer"; ha.title = it.links[0].name + " 기사로 이동"; h.append(ha); }
+        else h.append(document.createTextNode(it.headline));
+        head.append(h);
+        const cb = el("input", "sel"); cb.type = "checkbox"; cb.checked = SEL.has(it.id); cb.title = "복사용으로 선택";
+        cb.onchange = () => { cb.checked ? SEL.add(it.id) : SEL.delete(it.id); c.classList.toggle("picked", cb.checked); updateActs(); };
+        head.append(cb); c.append(head);
+        if (it.points.length){ const ul = el("ul", "pts"); it.points.forEach(p => ul.append(el("li", null, p))); c.append(ul); }
+        const miss = it.missing || [];
+        if (it.links.length || it.note || miss.length){
+          const box = el("div", "links");
+          it.links.forEach(l => { const a = el("a", l.name === state.outlet ? "hl" : "", l.name); a.href = l.url; a.target = "_blank"; a.rel = "noopener noreferrer"; box.append(a); });
+          miss.forEach(m => box.append(el("span", "miss", `${m.name} · ${m.text}`)));
+          if (it.note) box.append(el("span", "note", it.note));
+          c.append(box);
+        }
+        cards.append(c);
+      });
+      block.append(cards);
+    }
+    list.append(block);
+  }
+  if (!shown) list.append(el("div", "empty", "조건에 맞는 기사가 없습니다."));
+  updateActs();
+}
+
+
+/* 인쇄: 선택한 기사가 있으면 그것만, 없으면 현재 목록 전체 */
+function metaText(){
+  const n = VISIBLE.length, total = flat().length, cnt = {};
+  VISIBLE.forEach(x => { const k = x.grp || x.sec; cnt[k] = (cnt[k] || 0) + 1; });
+  const parts = Object.entries(cnt).map(([k, v]) => `${k} ${v}`).join(" · ");
+  const f = [PRINT_ONLY && "선택한 기사만", state.tab !== "all" && `구분: ${state.tab}`, state.outlet && `언론사: ${state.outlet}`,
+             state.region && `지역: ${state.region === "기타" ? "도 직속·기타" : state.region}`, state.q.trim() && `검색: ${state.q.trim()}`].filter(Boolean);
+  const d = new Date();
+  return `기사 ${n}건${n !== total ? ` (전체 ${total}건 중)` : ""} — ${parts}` + (f.length ? `  |  ${f.join(", ")}` : "") + `  |  출력 ${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
+}
+function doPrint(){
+  PRINT_ONLY = SEL.size > 0; render();
+  $("#printMeta").textContent = metaText();
+  setTimeout(() => window.print(), 50);
+}
+addEventListener("afterprint", () => { if (PRINT_ONLY){ PRINT_ONLY = false; render(); } });
+addEventListener("beforeprint", () => { $("#printMeta").textContent = metaText(); });
+$("#printBtn").onclick = doPrint;
+
+/* F. 복사 */
+function updateActs(){
+  $("#copySel").disabled = !SEL.size;
+  $("#copySel").textContent = `선택 기사 복사${SEL.size ? " (" + SEL.size + ")" : ""}`;
+  $("#copyAll").textContent = `현재 목록 복사 (${VISIBLE.length})`;
+  $("#copyAll").disabled = !VISIBLE.length;
+  $("#printBtn").textContent = SEL.size ? `🖨 선택 기사 인쇄 (${SEL.size})` : "🖨 인쇄";
+}
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("on"), 1800); }
+function makeText(rows){
+  const head = `[오늘의 언론기사 종합]${DATA.date ? " " + DATA.date : ""}\n`;
+  return head + rows.map((x, i) => {
+    const it = x.it, l = it.links[0];
+    const ms = (it.missing || []).length ? `\n   ※ ${it.missing.map(m => m.name).join(", ")} 인터넷 미탑재` : "";
+    return `\n${i + 1}. ${it.tag ? "[" + it.tag + "] " : ""}${it.headline}${l ? " (" + l.name + ")\n   " + l.url : ""}${ms}`;
+  }).join("\n");
+}
+async function copyText(text, n){
+  try { await navigator.clipboard.writeText(text); }
+  catch { const ta = el("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.append(ta); ta.select(); document.execCommand("copy"); ta.remove(); }
+  toast(`${n}건을 복사했습니다`);
+}
+$("#copySel").onclick = () => { const rows = flat().filter(x => SEL.has(x.it.id)); if (rows.length) copyText(makeText(rows), rows.length); };
+$("#copyAll").onclick = () => { if (VISIBLE.length) copyText(makeText(VISIBLE), VISIBLE.length); };
+$("#selAll").onclick = () => { VISIBLE.forEach(x => SEL.add(x.it.id)); render(); };
+$("#selNone").onclick = () => { SEL.clear(); render(); };
+
+/* ───────── 파일 처리 ───────── */
+/* 파일 종류를 확장자가 아니라 실제 내용(앞 8바이트)으로 판별 */
+async function sniff(f){
+  const h = new Uint8Array(await f.slice(0, 8).arrayBuffer());
+  const is = (...b) => b.every((v, i) => h[i] === v);
+  if (is(0x50, 0x4B)) return "zip";                                   // PK  (HWPX 등)
+  if (is(0xD0, 0xCF, 0x11, 0xE0)) return "ole";                       // 구형 HWP / 구형 Office
+  if (is(0x25, 0x50, 0x44, 0x46)) return "pdf";                       // %PDF
+  if (!h.length) return "empty";
+  return "other";
+}
+function showError(msg){
+  if ($("#intro").style.display !== "none"){ const e = $("#err"); e.textContent = msg; e.style.display = "block"; }
+  else { const a = $("#alert"); a.textContent = msg; a.style.display = "block"; scrollTo({ top: 0, behavior: "smooth" }); }
+}
+function clearError(){ $("#err").style.display = "none"; $("#err").textContent = ""; $("#alert").style.display = "none"; }
+
+async function handleFiles(files){
+  clearError();
+  files = [...files];
+  const kinds = await Promise.all(files.map(sniff));
+  const pick = k => files.filter((f, i) => kinds[i] === k);
+  const zips = pick("zip"), oles = pick("ole"), pdfs = pick("pdf");
+  const problems = [];
+  files.forEach((f, i) => {
+    if (kinds[i] === "other") problems.push(`⚠ '${f.name}'은(는) 지원하지 않는 형식입니다. (지원: .hwpx, .hwp, .pdf)`);
+    if (kinds[i] === "empty") problems.push(`⚠ '${f.name}'은(는) 비어 있는 파일입니다.`);
+  });
+  const jobs = [];
+  if (zips[0]) jobs.push([zips[0], parseHwpx, "hwpx"]);
+  if (oles[0]) jobs.push([oles[0], parseHwp, "hwp"]);
+  if (pdfs[0]) jobs.push([pdfs[0], parsePdf, "pdf"]);
+  if (!jobs.length){ showError(problems.join("\n") + "\n→ .hwpx, .hwp 또는 .pdf 파일을 놓아 주세요."); return; }
+
+  document.body.style.cursor = "progress";
+  try {
+    let got = null;
+    for (const [f, fn, kind] of jobs){
+      try {
+        const d = await fn(f);
+        const n = d.sections.reduce((a, s) => a + s.groups.reduce((b, g) => b + g.items.length, 0), 0);
+        if (n){ got = { d, f, kind }; break; }
+        problems.push(`⚠ '${f.name}'은(는) 열렸지만 기사 목록을 찾지 못했습니다.\n   (번호가 붙은 기사 줄 '1. 제목 (언론사)'과 '방송보도 / ▣ 구획'이 있는 언론보도 양식이어야 합니다.)`);
+      } catch (e){
+        console.error(e);
+        problems.push(kind === "pdf"
+          ? `⚠ '${f.name}'을(를) PDF로 읽지 못했습니다. 암호가 걸렸거나 스캔본(이미지)일 수 있습니다.\n   (${e.message})`
+          : kind === "hwp"
+          ? `⚠ '${f.name}'은(는) 구형 한글(.hwp)로 읽지 못했습니다.\n   (${e.message})\n   → 한글에서 HWPX나 PDF로 다시 저장해 주세요.`
+          : `⚠ '${f.name}'은(는) 한글(HWPX) 문서가 아니거나 손상되어 읽을 수 없습니다.\n   (${e.message})`);
+      }
+    }
+    if (!got){ showError(problems.join("\n")); return; }
+    show(got.d, { files: [got.f.name], pdfOnly: got.kind === "pdf" });
+    if (problems.length) showError(problems.join("\n") + "\n(읽을 수 있었던 파일로 대시보드를 만들었습니다.)");
+  } finally { document.body.style.cursor = ""; }
+}
+
+/* 화면 테마: 자동 → 밝게 → 어둡게 순환, 선택은 브라우저에 기억 */
+(function(){
+  const KEY = "press-theme", order = ["auto", "light", "dark"], label = { auto: "◐ 자동", light: "☀ 밝게", dark: "☾ 어둡게" };
+  let cur = "auto"; try { cur = localStorage.getItem(KEY) || "auto"; } catch {}
+  const apply = () => { if (cur === "auto") document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", cur);
+    const b = document.getElementById("theme"); if (b) b.textContent = label[cur]; };
+  apply();
+  document.getElementById("theme").onclick = () => { cur = order[(order.indexOf(cur) + 1) % 3]; try { localStorage.setItem(KEY, cur); } catch {} apply(); };
+})();
+
+/* ───────── 충남에듀있슈 연동 (로컬 도우미 실행 시에만 사용 가능) ───────── */
+const CNE = { ok: false, cur: "", busy: false };
+const fmtMD = d => { const m = d.match(/(\d{4})-(\d{2})-(\d{2})/); return m ? `${+m[2]}/${+m[3]}` : d; };
+function cneStatus(msg, isErr){ const e = $("#cneStat"); e.textContent = msg || ""; e.classList.toggle("err", !!isErr); }
+async function cneApi(path){
+  const res = await fetch(path, { cache: "no-store" });
+  let j = null; try { j = await res.json(); } catch {}
+  if (!res.ok) throw new Error((j && j.error) || `서버 오류 (${res.status})`);
+  return j;
+}
+async function cneLoad(date, dir){
+  if (!CNE.ok || CNE.busy) return;
+  if (!date){ cneStatus("날짜를 선택해 주세요.", true); return; }
+  CNE.busy = true; clearError();
+  try {
+    cneStatus(`${fmtMD(date)} 게시글을 찾는 중…`);
+    const f = await cneApi(`/api/find?date=${date}` + (dir ? `&dir=${dir}` : ""));
+    if (!f.posts.length){
+      const n = f.near || {};
+      const hint = [n.older && `이전: ${fmtMD(n.older.date)}`, n.newer && `다음: ${fmtMD(n.newer.date)}`].filter(Boolean).join("   ");
+      const msg = dir ? "더 이상 게시글이 없습니다." : `${date} 날짜의 게시글이 없습니다.` + (hint ? `\n가까운 게시일 → ${hint}` : "");
+      cneStatus(msg, true); if ($("#dash").style.display === "block") showError("⚠ " + msg); return;
+    }
+    const post = f.posts[0];
+    cneStatus(`'${post.title}' (${post.date}) 첨부파일 확인 중…`);
+    const pf = await cneApi(`/api/post?seq=${post.seq}`);
+    const wanted = pf.files.filter(x => /\.(hwpx|hwp|pdf)$/i.test(x.name));
+    if (!wanted.length) throw new Error("게시글에 읽을 수 있는 첨부파일(hwpx/hwp/pdf)이 없습니다.");
+    const files = [];
+    for (const x of wanted){
+      cneStatus(`'${x.name}' 내려받는 중…`);
+      const res = await fetch(`/api/file?fileSeq=${encodeURIComponent(x.fileSeq)}`, { cache: "no-store" });
+      if (!res.ok) throw new Error(`'${x.name}' 내려받기에 실패했습니다.`);
+      files.push(new File([await res.blob()], x.name));
+    }
+    CNE.cur = post.date;
+    await handleFiles(files);
+    $("#hdrDate").value = $("#cneDate").value = post.date; cneMarkChips(); $("#newPost").hidden = true;
+    cneStatus(`${post.date} 불러오기 완료`);
+  } catch (e){
+    cneStatus(e.message, true);
+    if ($("#dash").style.display === "block") showError("⚠ " + e.message);
+  } finally { CNE.busy = false; }
+}
+const WD = ["일", "월", "화", "수", "목", "금", "토"];
+/* ───────── 달력: 게시글이 있는 날만 선택 · ◀ ▶ 또는 마우스 휠(위로=이전 달)로 달 이동 ───────── */
+const CAL = { el: null, input: null, onPick: null, y: 0, m: 0, months: {}, token: 0 };
+const pad2 = n => String(n).padStart(2, "0");
+async function calDates(ym){
+  if (ym in CAL.months) return CAL.months[ym];
+  try { CAL.months[ym] = new Set((await cneApi(`/api/month?ym=${ym}`)).dates); } catch { CAL.months[ym] = null; }
+  return CAL.months[ym];
+}
+function calClose(){ if (CAL.el){ CAL.el.remove(); CAL.el = null; } }
+function calShift(d){
+  let y = CAL.y, m = CAL.m + d; if (m < 1){ m = 12; y--; } if (m > 12){ m = 1; y++; }
+  const maxYM = (CNE.latest || "9999-12").slice(0, 7);
+  if (`${y}-${pad2(m)}` > maxYM || y < 2015) return;
+  CAL.y = y; CAL.m = m; calRender();
+}
+async function calRender(){
+  const box = CAL.el; if (!box) return;
+  const tk = ++CAL.token, ym = `${CAL.y}-${pad2(CAL.m)}`;
+  const maxYM = (CNE.latest || "9999-12").slice(0, 7);
+  box.replaceChildren();
+  const h = el("div", "cal-h");
+  const prev = el("button", null, "◀"); prev.type = "button"; prev.title = "이전 달"; prev.onclick = () => calShift(-1);
+  const next = el("button", null, "▶"); next.type = "button"; next.title = "다음 달"; next.onclick = () => calShift(1); next.disabled = ym >= maxYM;
+  h.append(prev, el("b", null, `${CAL.y}년 ${CAL.m}월`), next); box.append(h);
+  const g = el("div", "cal-g"); box.append(g);
+  WD.forEach(w => g.append(el("div", "cal-w", w)));
+  g.append(el("div", "cal-load", "게시글 확인 중…"));
+  const set = await calDates(ym);
+  if (tk !== CAL.token || !CAL.el) return;
+  g.replaceChildren(); WD.forEach(w => g.append(el("div", "cal-w", w)));
+  const first = new Date(CAL.y, CAL.m - 1, 1).getDay(), days = new Date(CAL.y, CAL.m, 0).getDate();
+  for (let i = 0; i < first; i++) g.append(el("div", "cal-d nil"));
+  for (let d = 1; d <= days; d++){
+    const iso = `${ym}-${pad2(d)}`, has = set ? set.has(iso) : true;
+    const b = el("button", "cal-d " + (has ? "has" : "off") + (new Date(CAL.y, CAL.m - 1, d).getDay() === 0 ? " sun" : "") + (iso === CAL.input.value ? " sel" : ""), String(d));
+    b.type = "button";
+    if (has) b.onclick = () => { CAL.input.value = iso; const cb = CAL.onPick; calClose(); if (cb) cb(iso); };
+    else b.disabled = true;
+    g.append(b);
+  }
+  const f = el("div", "cal-f"); const lg = el("span"); lg.append(el("i"), document.createTextNode("기사 있는 날")); f.append(lg);
+  const lt = el("button", null, "최신 게시일로"); lt.type = "button"; lt.onclick = () => { if (CNE.latest){ CAL.y = +CNE.latest.slice(0, 4); CAL.m = +CNE.latest.slice(5, 7); calRender(); } };
+  f.append(lt); box.append(f);
+}
+function calOpen(input, onPick){
+  if (CAL.el && CAL.input === input){ calClose(); return; }
+  calClose(); CAL.input = input; CAL.onPick = onPick;
+  const base = input.value || CNE.latest || new Date().toISOString().slice(0, 10);
+  CAL.y = +base.slice(0, 4); CAL.m = +base.slice(5, 7);
+  const box = el("div", "cal"); CAL.el = box; document.body.append(box);
+  const rc = input.getBoundingClientRect();
+  box.style.top = ((rc.bottom + 330 > innerHeight && rc.top > 336) ? rc.top + scrollY - 330 : rc.bottom + scrollY + 6) + "px";   // 아래 공간이 모자라면 위로 펼침
+  box.style.left = Math.max(8, Math.min(rc.left + scrollX, document.documentElement.clientWidth - 304)) + "px";
+  box.addEventListener("wheel", e => { e.preventDefault(); calShift(e.deltaY < 0 ? -1 : 1); }, { passive: false });
+  calRender();
+}
+document.addEventListener("pointerdown", e => { if (CAL.el && !CAL.el.contains(e.target) && e.target !== CAL.input) calClose(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") calClose(); });
+const fmtLong = d => { const m = d.match(/(\d{4})-(\d{2})-(\d{2})/); if (!m) return d; const w = WD[new Date(+m[1], +m[2] - 1, +m[3]).getDay()]; return `${+m[2]}월 ${+m[3]}일(${w})`; };
+function cneIntroMsg(){ if (CNE.latest) cneStatus(`가장 최근 게시일은 ${fmtLong(CNE.latest)}입니다.
+날짜를 확인하고 [불러오기]를 눌러 주세요.`); }
+function cneMarkChips(){ document.querySelectorAll("#cneRec button").forEach(b => b.classList.toggle("on", b.dataset.date === CNE.cur)); }
+async function cneRefresh(manual){
+  try {
+    const { posts } = await cneApi("/api/recent?limit=12" + (manual ? "&fresh=1" : ""));
+    if (!posts.length) return;
+    const latest = posts[0].date, prev = CNE.latest;
+    CNE.latest = latest;
+    if (manual || (prev && latest !== prev)) delete CAL.months[latest.slice(0, 7)];   // 최신 달은 새로 확인
+    $("#cneDate").max = $("#hdrDate").max = latest;
+    if (!$("#cneDate").value) $("#cneDate").value = $("#hdrDate").value = latest;
+    const rec = $("#cneRec"); rec.replaceChildren();
+    posts.slice(0, 8).forEach((pp, i) => { const b = el("button", null, fmtMD(pp.date) + (i === 0 ? " · 최신" : "")); b.type = "button"; b.dataset.date = pp.date; b.title = pp.title;
+      b.onclick = () => { $("#cneDate").value = pp.date; cneLoad(pp.date); }; rec.append(b); });
+    cneMarkChips();
+    if ($("#dash").style.display !== "block"){ $("#cneDate").value = latest; if (!CNE.busy && !manual) cneIntroMsg(); }
+    if ($("#dash").style.display === "block" && prev && latest > prev && CNE.cur !== latest){
+      $("#newPostTxt").textContent = `📢 새 게시글(${fmtMD(latest)})이 올라왔습니다.`; $("#newPost").hidden = false;
+    } else if (manual){ toast(`최신 상태입니다 (${fmtMD(latest)})`); }
+  } catch (e){ if (manual || !CNE.latest) cneStatus(e.message, true); }
+}
+async function cneInit(){
+  if (!/^https?:$/.test(location.protocol)){
+    $("#cneSub").textContent = "이 화면은 웹 주소(https://…)로 접속해야 동작합니다. 파일을 직접 열면 기사를 불러올 수 없어요.";
+    return;
+  }
+  try { const j = await (await fetch("/api/ping", { cache: "no-store" })).json(); if (!j.cne) throw 0; }
+  catch { $("#cneSub").textContent = "서버에 연결하지 못했습니다. 잠시 뒤 다시 접속해 주세요."; return; }
+  CNE.ok = true;
+  $("#cneRow").hidden = false; $("#hdrFetch").classList.add("on");
+  $("#cneGo").onclick = () => cneLoad($("#cneDate").value);
+  $("#hdrGo").onclick = () => cneLoad($("#hdrDate").value);
+  $("#cneRefresh").onclick = () => cneRefresh(true);
+  $("#cneDate").onclick = () => calOpen($("#cneDate"), null);
+  $("#hdrDate").onclick = () => calOpen($("#hdrDate"), iso => cneLoad(iso));
+  [["#cneDate", null], ["#hdrDate", iso => cneLoad(iso)]].forEach(([sel, cb]) => { $(sel).onkeydown = e => {
+    if (e.key === "Enter") cneLoad($(sel).value); else if (e.key === " " || e.key === "ArrowDown"){ e.preventDefault(); calOpen($(sel), cb); } }; });
+  $("#hdrPrev").onclick = () => cneLoad(CNE.cur || $("#hdrDate").value, "prev");
+  $("#hdrNext").onclick = () => cneLoad(CNE.cur || $("#hdrDate").value, "next");
+  $("#newPostGo").onclick = () => { $("#newPost").hidden = true; cneLoad(CNE.latest); };
+  cneStatus("최근 게시글을 확인하는 중…");
+  await cneRefresh(false);
+  cneIntroMsg();
+  setInterval(() => cneRefresh(false), 10 * 60 * 1000);   // 게시판 갱신 확인(10분마다)
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) cneRefresh(false); });
+}
+
+$("#reset").onclick = () => {
+  clearError(); DATA = null; SEL = new Set(); state = { tab: "all", q: "", outlet: "", region: "", missing: false }; $("#q").value = "";
+  $("#list").replaceChildren(); $("#warn").replaceChildren(); $("#newPost").hidden = true;
+  $("#dash").style.display = "none"; $("#intro").style.display = "flex";
+  CNE.cur = ""; if (CNE.latest) $("#cneDate").value = CNE.latest; cneMarkChips(); cneIntroMsg();
+  document.title = "오늘의 언론기사 종합"; scrollTo(0, 0);
+};
+$("#q").oninput = e => { state.q = e.target.value; render(); };
+cneInit();
+</script>
+</body>
+</html>
