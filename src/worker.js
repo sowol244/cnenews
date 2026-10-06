@@ -139,7 +139,7 @@ async function handleApi(request) {
 
     return json({ error: "not found" }, 404);
   } catch (e) {
-    return json({ error: "충남에듀있슈에서 정보를 가져오지 못했습니다. 잠시 뒤 다시 시도해 주세요." }, 502);
+    return json({ error: "충남에듀있슈에서 정보를 가져오지 못했습니다. 잠시 뒤 다시 시도해 주세요.", detail: String((e && e.message) || e).slice(0, 200) }, 502);
   }
 }
 
