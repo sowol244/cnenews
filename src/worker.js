@@ -1,4 +1,4 @@
-// 충남에듀있슈 '주요 언론기사' 게시판 중계 (Cloudflare Pages Functions)
+// 충남에듀있슈 '주요 언론기사' 게시판 중계 (Cloudflare Workers)
 // 브라우저는 다른 사이트(news.cne.go.kr)의 파일을 직접 가져올 수 없어서,
 // 이 코드가 대신 목록·첨부파일을 가져와 같은 주소(/api/...)로 전달합니다.
 // 허용된 주소(게시판 1004번의 목록·보기·파일받기)만 읽도록 제한되어 있습니다.
@@ -6,7 +6,7 @@
 const BASE = "http://news.cne.go.kr";
 const BOARD = "1004";
 const M = "0402";
-const VERSION = "web-1";
+const VERSION = "web-2";
 const UA = { "User-Agent": "Mozilla/5.0 (compatible; CNE-Press-Dashboard)" };
 
 const memo = new Map();                       // 같은 서버 인스턴스 안에서만 잠깐 기억
@@ -92,7 +92,7 @@ async function postFiles(seq) {
   return files;
 }
 
-export async function onRequestGet({ request }) {
+async function handleApi(request) {
   const url = new URL(request.url);
   const q = url.searchParams;
   const path = url.pathname.replace(/\/+$/, "");
@@ -142,3 +142,14 @@ export async function onRequestGet({ request }) {
     return json({ error: "충남에듀있슈에서 정보를 가져오지 못했습니다. 잠시 뒤 다시 시도해 주세요." }, 502);
   }
 }
+
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    if (url.pathname.startsWith("/api/")) {
+      if (request.method !== "GET" && request.method !== "HEAD") return json({ error: "method not allowed" }, 405);
+      return handleApi(request);
+    }
+    return env.ASSETS.fetch(request);          // 그 밖의 주소는 화면(public 폴더)을 그대로 보여줌
+  },
+};
