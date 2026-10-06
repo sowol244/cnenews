@@ -18,18 +18,28 @@ const json = (obj, status = 200) =>
 
 const unescapeHtml = t => t.replace(/&nbsp;/g, " ").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&");
 
-async function upstream(url, fresh) {
+// 충남에듀있슈가 가끔 연결을 늦게 받아(522) 실패하므로, 실패하면 잠깐 쉬었다가 최대 4번까지 다시 시도한다
+async function upstream(url, fresh, ttl = 60) {
   const u = fresh ? url + (url.includes("?") ? "&" : "?") + "_t=" + Date.now() : url;
-  const r = await fetch(u, { headers: UA, cf: { cacheTtl: fresh ? 0 : 60, cacheEverything: !fresh } });
-  if (!r.ok) throw new Error("upstream " + r.status);
-  return r;
+  let lastErr = new Error("upstream");
+  for (let i = 0; i < 4; i++) {
+    try {
+      const r = await fetch(u, { headers: UA, cf: { cacheTtl: fresh ? 0 : ttl, cacheEverything: !fresh } });
+      if (r.ok) return r;
+      lastErr = new Error("upstream " + r.status);
+      if (r.status < 500) break;               // 4xx는 다시 해도 소용없음
+    } catch (e) { lastErr = e; }
+    await new Promise(res => setTimeout(res, 250 * (i + 1)));
+  }
+  throw lastErr;
 }
 
 // ── 게시판 목록
 async function listPage(page, fresh) {
   const key = "p" + page;
   if (!fresh) { const hit = recall(key); if (hit) return hit; }
-  const res = await upstream(`${BASE}/boardCnts/list.do?boardID=${BOARD}&m=${M}&s=news&page=${page}`, fresh);
+  const ttl = page === 1 ? 60 : 3600;
+  const res = await upstream(`${BASE}/boardCnts/list.do?boardID=${BOARD}&m=${M}&s=news&page=${page}`, fresh, ttl);
   const text = await res.text();
   const rows = [], seen = new Set();
   for (const tr of text.match(/<tr[^>]*>[\s\S]*?<\/tr>/g) || []) {
@@ -39,12 +49,12 @@ async function listPage(page, fresh) {
     seen.add(m[2]);
     rows.push({ seq: m[2], title: unescapeHtml(m[1]).trim(), date: d[1] });
   }
-  remember(key, 60 * 1000, rows);
+  remember(key, ttl * 1000, rows);
   return rows;
 }
 
-// date 이전(포함) 글이 나올 때까지 페이지를 읽는다 (4쪽씩 동시에, 요청 수 제한 때문에 최대 44쪽)
-async function collectUntil(date, fresh, maxPages = 44) {
+// date 이전(포함) 글이 나올 때까지 페이지를 읽는다 (4쪽씩 동시에, 요청 수 제한 때문에 최대 32쪽)
+async function collectUntil(date, fresh, maxPages = 32) {
   const all = [];
   for (let p = 1; p <= maxPages; p += 4) {
     const pages = await Promise.all([0, 1, 2, 3].map(i => listPage(p + i, fresh && p === 1)));

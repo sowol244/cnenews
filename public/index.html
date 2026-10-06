@@ -1072,8 +1072,17 @@ async function handleFiles(files){
 const CNE = { ok: false, cur: "", busy: false };
 const fmtMD = d => { const m = d.match(/(\d{4})-(\d{2})-(\d{2})/); return m ? `${+m[2]}/${+m[3]}` : d; };
 function cneStatus(msg, isErr){ const e = $("#cneStat"); e.textContent = msg || ""; e.classList.toggle("err", !!isErr); }
+async function fetchRetry(url, opts, n = 4){             // 충남에듀있슈 연결이 가끔 늦어 실패하면 몇 번 다시 시도
+  let res;
+  for (let t = 0; t < n; t++){
+    try { res = await fetch(url, opts); } catch (e){ if (t === n - 1) throw e; await new Promise(r => setTimeout(r, 600)); continue; }
+    if (res.status !== 502 && res.status !== 504) return res;
+    if (t < n - 1) await new Promise(r => setTimeout(r, 600));
+  }
+  return res;
+}
 async function cneApi(path){
-  const res = await fetch(path, { cache: "no-store" });
+  const res = await fetchRetry(path, { cache: "no-store" });
   let j = null; try { j = await res.json(); } catch {}
   if (!res.ok) throw new Error((j && j.error) || `서버 오류 (${res.status})`);
   return j;
@@ -1099,7 +1108,7 @@ async function cneLoad(date, dir){
     const files = [];
     for (const x of wanted){
       cneStatus(`'${x.name}' 내려받는 중…`);
-      const res = await fetch(`/api/file?fileSeq=${encodeURIComponent(x.fileSeq)}`, { cache: "no-store" });
+      const res = await fetchRetry(`/api/file?fileSeq=${encodeURIComponent(x.fileSeq)}`, { cache: "no-store" });
       if (!res.ok) throw new Error(`'${x.name}' 내려받기에 실패했습니다.`);
       files.push(new File([await res.blob()], x.name));
     }
