@@ -1,35 +1,33 @@
-// 충남에듀있슈 '주요 언론기사' 게시판 중계 (Cloudflare Workers)
+// 충남에듀있슈 '주요 언론기사' 게시판 중계 (Vercel 함수, 서울 지역에서 실행)
 // 브라우저는 다른 사이트(news.cne.go.kr)의 파일을 직접 가져올 수 없어서,
 // 이 코드가 대신 목록·첨부파일을 가져와 같은 주소(/api/...)로 전달합니다.
 // 허용된 주소(게시판 1004번의 목록·보기·파일받기)만 읽도록 제한되어 있습니다.
+"use strict";
 
 const BASE = "http://news.cne.go.kr";
 const BOARD = "1004";
 const M = "0402";
-const VERSION = "web-2";
+const VERSION = "vercel-1";
 const UA = { "User-Agent": "Mozilla/5.0 (compatible; CNE-Press-Dashboard)" };
 
 const memo = new Map();                       // 같은 서버 인스턴스 안에서만 잠깐 기억
 const remember = (key, ttlMs, value) => memo.set(key, { until: Date.now() + ttlMs, value });
 const recall = key => { const h = memo.get(key); return h && h.until > Date.now() ? h.value : undefined; };
-
-const json = (obj, status = 200) =>
-  new Response(JSON.stringify(obj), { status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
-
 const unescapeHtml = t => t.replace(/&nbsp;/g, " ").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&");
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-// 충남에듀있슈가 가끔 연결을 늦게 받아(522) 실패하므로, 실패하면 잠깐 쉬었다가 최대 4번까지 다시 시도한다
-async function upstream(url, fresh, ttl = 60) {
+// 느리거나 끊기면 오래 붙잡지 않고(9초) 한 번만 다시 시도
+async function upstream(url, fresh) {
   const u = fresh ? url + (url.includes("?") ? "&" : "?") + "_t=" + Date.now() : url;
   let lastErr = new Error("upstream");
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 2; i++) {
     try {
-      const r = await fetch(u, { headers: UA, cf: { cacheTtl: fresh ? 0 : ttl, cacheEverything: !fresh } });
+      const r = await fetch(u, { headers: UA, signal: AbortSignal.timeout(9000) });
       if (r.ok) return r;
       lastErr = new Error("upstream " + r.status);
-      if (r.status < 500) break;               // 4xx는 다시 해도 소용없음
+      if (r.status < 500) break;
     } catch (e) { lastErr = e; }
-    await new Promise(res => setTimeout(res, 250 * (i + 1)));
+    await sleep(300);
   }
   throw lastErr;
 }
@@ -39,7 +37,7 @@ async function listPage(page, fresh) {
   const key = "p" + page;
   if (!fresh) { const hit = recall(key); if (hit) return hit; }
   const ttl = page === 1 ? 60 : 3600;
-  const res = await upstream(`${BASE}/boardCnts/list.do?boardID=${BOARD}&m=${M}&s=news&page=${page}`, fresh, ttl);
+  const res = await upstream(`${BASE}/boardCnts/list.do?boardID=${BOARD}&m=${M}&s=news&page=${page}`, fresh);
   const text = await res.text();
   const rows = [], seen = new Set();
   for (const tr of text.match(/<tr[^>]*>[\s\S]*?<\/tr>/g) || []) {
@@ -53,8 +51,8 @@ async function listPage(page, fresh) {
   return rows;
 }
 
-// date 이전(포함) 글이 나올 때까지 페이지를 읽는다 (4쪽씩 동시에, 요청 수 제한 때문에 최대 32쪽)
-async function collectUntil(date, fresh, maxPages = 32) {
+// date 이전(포함) 글이 나올 때까지 4쪽씩 동시에 읽는다
+async function collectUntil(date, fresh, maxPages = 60) {
   const all = [];
   for (let p = 1; p <= maxPages; p += 4) {
     const pages = await Promise.all([0, 1, 2, 3].map(i => listPage(p + i, fresh && p === 1)));
@@ -102,64 +100,69 @@ async function postFiles(seq) {
   return files;
 }
 
-async function handleApi(request) {
-  const url = new URL(request.url);
+module.exports = async function handler(req, res) {
+  const url = new URL(req.url, "http://localhost");
   const q = url.searchParams;
   const path = url.pathname.replace(/\/+$/, "");
+
+  const send = (status, obj, cache) => {
+    res.statusCode = status;
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.setHeader("Cache-Control", cache || "no-store");
+    res.end(JSON.stringify(obj));
+  };
+
+  if (req.method !== "GET" && req.method !== "HEAD") return send(405, { error: "method not allowed" });
+
   try {
-    if (path === "/api/ping") return json({ app: "cne-press-dashboard", cne: true, version: VERSION });
+    if (path === "/api/ping") return send(200, { app: "cne-press-dashboard", cne: true, version: VERSION });
 
     if (path === "/api/recent") {
       const n = Math.max(1, Math.min(parseInt(q.get("limit") || "30", 10) || 30, 100));
       const fresh = !!q.get("fresh");
       let rows = [];
       for (let p = 1; p <= 11 && rows.length < n; p++) rows = rows.concat(await listPage(p, fresh && p === 1));
-      return json({ posts: rows.slice(0, n) });
+      return send(200, { posts: rows.slice(0, n) }, fresh ? "no-store" : "public, s-maxage=60, stale-while-revalidate=300");
     }
 
     if (path === "/api/find") {
       const date = q.get("date") || "";
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return json({ error: "날짜 형식이 올바르지 않습니다." }, 400);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return send(400, { error: "날짜 형식이 올바르지 않습니다." });
       const mode = ["prev", "next"].includes(q.get("dir")) ? q.get("dir") : "exact";
       let posts = await findPosts(date, mode, false);
       if (!posts.length && mode === "exact") posts = await findPosts(date, mode, true);   // 방금 올라온 글일 수 있음
       const out = { posts };
       if (!posts.length) out.near = await nearby(date);
-      return json(out);
+      return send(200, out, posts.length ? "public, s-maxage=60, stale-while-revalidate=300" : "no-store");
     }
 
     if (path === "/api/month") {
       const ym = q.get("ym") || "";
-      if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(ym)) return json({ error: "월 형식이 올바르지 않습니다." }, 400);
-      return json({ dates: await monthDates(ym, !!q.get("fresh")) });
+      if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(ym)) return send(400, { error: "월 형식이 올바르지 않습니다." });
+      const fresh = !!q.get("fresh");
+      return send(200, { dates: await monthDates(ym, fresh) }, fresh ? "no-store" : "public, s-maxage=300, stale-while-revalidate=600");
     }
 
     if (path === "/api/post") {
       const seq = q.get("seq") || "";
-      if (!/^\d{3,12}$/.test(seq)) return json({ error: "글 번호가 올바르지 않습니다." }, 400);
-      return json({ files: await postFiles(seq) });
+      if (!/^\d{3,12}$/.test(seq)) return send(400, { error: "글 번호가 올바르지 않습니다." });
+      return send(200, { files: await postFiles(seq) }, "public, s-maxage=300, stale-while-revalidate=600");
     }
 
     if (path === "/api/file") {
       const fs = q.get("fileSeq") || "";
-      if (!/^[0-9a-zA-Z]{8,64}$/.test(fs)) return json({ error: "파일 번호가 올바르지 않습니다." }, 400);
+      if (!/^[0-9a-zA-Z]{8,64}$/.test(fs)) return send(400, { error: "파일 번호가 올바르지 않습니다." });
       const r = await upstream(`${BASE}/boardCnts/fileDown.do?m=${M}&s=news&fileSeq=${fs}`, false);
-      return new Response(r.body, { status: 200, headers: { "Content-Type": "application/octet-stream", "Cache-Control": "no-store" } });
+      const buf = new Uint8Array(await r.arrayBuffer());
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "application/octet-stream");
+      res.setHeader("Cache-Control", "public, max-age=3600, s-maxage=86400");   // 파일 번호가 같으면 내용도 같음
+      res.setHeader("Content-Length", String(buf.length));
+      return res.end(buf);
     }
 
-    return json({ error: "not found" }, 404);
+    return send(404, { error: "not found" });
   } catch (e) {
-    return json({ error: "충남에듀있슈에서 정보를 가져오지 못했습니다. 잠시 뒤 다시 시도해 주세요.", detail: String((e && e.message) || e).slice(0, 200) }, 502);
+    return send(502, { error: "충남에듀있슈에서 정보를 가져오지 못했습니다. 잠시 뒤 다시 시도해 주세요.", detail: String((e && e.message) || e).slice(0, 200) });
   }
-}
-
-export default {
-  async fetch(request, env) {
-    const url = new URL(request.url);
-    if (url.pathname.startsWith("/api/")) {
-      if (request.method !== "GET" && request.method !== "HEAD") return json({ error: "method not allowed" }, 405);
-      return handleApi(request);
-    }
-    return env.ASSETS.fetch(request);          // 그 밖의 주소는 화면(public 폴더)을 그대로 보여줌
-  },
 };
