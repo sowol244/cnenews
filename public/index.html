@@ -97,6 +97,8 @@ header.top .date{color:var(--brand);font-weight:700;margin-bottom:4px}
 .rchip:hover{border-color:var(--brand)}
 .rchip.on{background:var(--brand);border-color:var(--brand);color:#fff}
 .rchip.on b{color:#fff}
+.rchip[disabled]{opacity:.4;cursor:default}
+.rchip[disabled]:hover{border-color:var(--line)}
 .acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;width:100%}
 .acts .btn{padding:6px 12px;font-size:13px}
 .acts .btn[disabled]{opacity:.4;cursor:default}
@@ -800,8 +802,9 @@ async function parsePdf(file){
 }
 
 /* ───────── 화면 ───────── */
-const REGIONS = ["천안","공주","보령","아산","서산","논산","계룡","당진","금산","부여","서천","청양","홍성","예산","태안"];
-const regionOf = h => REGIONS.find(x => h.startsWith(x)) || "기타";
+const HQ = "도 직속";                                      // 시·군 이름으로 시작하지 않는 기사(도교육청 직속기관 등)
+const REGIONS = ["천안","공주","보령","아산","서산","논산","당진","금산","부여","서천","청양","홍성","예산","태안","계룡"];   // 화면에 보이는 순서
+const regionOf = h => REGIONS.find(x => h.startsWith(x)) || HQ;
 let PRINT_ONLY = false, LAST_META = null;
 let DATA = null, SEL = new Set(), VISIBLE = [], state = { tab: "all", q: "", outlet: "", region: "", missing: false };
 
@@ -864,8 +867,10 @@ function show(data, meta){
   // D. 지역 칩
   const rc = {}; all.forEach(x => { if (x.it.region) rc[x.it.region] = (rc[x.it.region] || 0) + 1; });
   const rg = $("#regions"); rg.replaceChildren();
-  Object.entries(rc).sort((a, b) => (a[0] === "기타") - (b[0] === "기타") || b[1] - a[1]).forEach(([name, n]) => {
-    const c = el("button", "rchip", name === "기타" ? "도 직속·기타" : name); c.type = "button"; c.dataset.name = name; c.append(el("b", null, String(n)));
+  [HQ, ...REGIONS].forEach(name => {                      // 도 직속을 맨 앞에 두고 정해진 순서대로 항상 표시
+    const n = rc[name] || 0;
+    const c = el("button", "rchip", name); c.type = "button"; c.dataset.name = name; c.append(el("b", null, String(n)));
+    if (!n) c.disabled = true;
     c.onclick = () => { state.region = state.region === name ? "" : name; render(); };
     rg.append(c);
   });
@@ -891,7 +896,7 @@ function render(){
   document.querySelectorAll(".orow").forEach(b => b.classList.toggle("on", b.dataset.name === state.outlet));
   document.querySelectorAll(".rchip").forEach(b => b.classList.toggle("on", b.dataset.name === state.region));
   const ft = $("#filterTag");
-  const fl = [state.missing && "인터넷 미탑재 기사", state.outlet && `언론사: ${state.outlet}`, state.region && `지역: ${state.region === "기타" ? "도 직속·기타" : state.region}`].filter(Boolean);
+  const fl = [state.missing && "인터넷 미탑재 기사", state.outlet && `언론사: ${state.outlet}`, state.region && `지역: ${state.region}`].filter(Boolean);
   ft.style.display = fl.length ? "inline-block" : "none";
   ft.textContent = fl.length ? fl.join(" · ") + "  ✕" : "";
   ft.onclick = () => { state.outlet = ""; state.region = ""; render(); };
@@ -960,7 +965,7 @@ function metaText(){
   VISIBLE.forEach(x => { const k = x.grp || x.sec; cnt[k] = (cnt[k] || 0) + 1; });
   const parts = Object.entries(cnt).map(([k, v]) => `${k} ${v}`).join(" · ");
   const f = [PRINT_ONLY && "선택한 기사만", state.tab !== "all" && `구분: ${state.tab}`, state.outlet && `언론사: ${state.outlet}`,
-             state.region && `지역: ${state.region === "기타" ? "도 직속·기타" : state.region}`, state.q.trim() && `검색: ${state.q.trim()}`].filter(Boolean);
+             state.region && `지역: ${state.region}`, state.q.trim() && `검색: ${state.q.trim()}`].filter(Boolean);
   const d = new Date();
   return `기사 ${n}건${n !== total ? ` (전체 ${total}건 중)` : ""} — ${parts}` + (f.length ? `  |  ${f.join(", ")}` : "") + `  |  출력 ${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
 }
