@@ -803,7 +803,7 @@ async function parsePdf(file){
 
 /* ───────── 화면 ───────── */
 const HQ = "도 직속";                                      // 시·군 이름으로 시작하지 않는 기사(도교육청 직속기관 등)
-const REGIONS = ["천안","공주","보령","아산","서산","논산","당진","금산","부여","서천","청양","홍성","예산","태안","계룡"];   // 화면에 보이는 순서
+const REGIONS = ["천안","공주","보령","아산","서산","논산","계룡","당진","금산","부여","서천","청양","홍성","예산","태안"];   // 화면에 보이는 순서
 const regionOf = h => REGIONS.find(x => h.startsWith(x)) || HQ;
 let PRINT_ONLY = false, LAST_META = null;
 let DATA = null, SEL = new Set(), VISIBLE = [], state = { tab: "all", q: "", outlet: "", region: "", missing: false };
@@ -867,10 +867,10 @@ function show(data, meta){
   // D. 지역 칩
   const rc = {}; all.forEach(x => { if (x.it.region) rc[x.it.region] = (rc[x.it.region] || 0) + 1; });
   const rg = $("#regions"); rg.replaceChildren();
-  [HQ, ...REGIONS].forEach(name => {                      // 도 직속을 맨 앞에 두고 정해진 순서대로 항상 표시
+  [HQ, ...REGIONS].forEach(name => {                      // 도 직속을 맨 앞에 두고 정해진 순서대로 표시
     const n = rc[name] || 0;
+    if (!n) return;                                       // 그날 기사가 없는 지역은 아예 표시하지 않음
     const c = el("button", "rchip", name); c.type = "button"; c.dataset.name = name; c.append(el("b", null, String(n)));
-    if (!n) c.disabled = true;
     c.onclick = () => { state.region = state.region === name ? "" : name; render(); };
     rg.append(c);
   });
